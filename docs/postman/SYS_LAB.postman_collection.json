@@ -1,0 +1,186 @@
+{
+	"info": {
+		"_postman_id": "1130c19e-5b34-438f-a8b6-bae71121aee5",
+		"name": "SYS_LAB",
+		"description": "### **RESERVA DE LABORATORIO (API RESTFul)**",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "34537582"
+	},
+	"item": [
+		{
+			"name": "usuario",
+			"item": [
+				{
+					"name": "findAll",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/usuario/findAll",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"usuario",
+								"findAll"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "findById",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/usuario/findById/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"usuario",
+								"findById",
+								""
+							]
+						},
+						"description": "_Adiciona um ID no fim da rota_"
+					},
+					"response": []
+				},
+				{
+					"name": "save",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"nome\": \"USUARIO1\",\r\n    \"email\": \"usuario.1@email.com\",\r\n    \"senha\": \"HASH123\"\r\n}\r\n\r\n/*[\r\n    {\r\n        \"nome\": \"USUARIO1\",\r\n        \"email\": \"usuario.1@email.com\",\r\n        \"senha\": \"HASH123\"\r\n    },\r\n    {\r\n        \"nome\": \"USUARIO2\",\r\n        \"email\": \"usuario.2@email.com\",\r\n        \"senha\": \"HASH123\"\r\n    },\r\n]\r\n*/",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/usuario/save",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"usuario",
+								"save"
+							]
+						},
+						"description": "**Adiciona um ou varios usuario**"
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "// NECESSARIO ALTERAR TODOS OS PARAMETROS\r\n{\r\n    \"nome\": \"USUARIO1\",\r\n    \"email\": \"usuario.1@email.com\",\r\n    \"senha\": \"HASH123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/usuario/updateById/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"usuario",
+								"updateById",
+								""
+							]
+						},
+						"description": "_Adiciona um ID no fim da rota_"
+					},
+					"response": []
+				},
+				{
+					"name": "parcialUpdate",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"nome\": \"NOVO123\",\r\n    \"email\": \"email@email.com\"\r\n}\r\n/* \r\n    {\r\n        \"nome\": \"novoNome\"\r\n    }\r\n\r\n        {\r\n        \"email\": \"novoEmail@email.com\"\r\n    }\r\n\r\n    {\r\n        \"senha\": \"NOVASENHAHASH123\"\r\n    }\r\n*/",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/usuario/updatePartial/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"usuario",
+								"updatePartial",
+								""
+							],
+							"query": [
+								{
+									"key": "1",
+									"value": "",
+									"disabled": true
+								}
+							]
+						},
+						"description": "_Adiciona um ID no fim da rota_"
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/usuario/deleteById/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"usuario",
+								"deleteById",
+								""
+							]
+						},
+						"description": "_Adiciona um ID no fim da rota_"
+					},
+					"response": []
+				}
+			],
+			"description": "Requisições e Respostas de Usuario"
+		}
+	]
+}

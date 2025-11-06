@@ -1,0 +1,31 @@
+{
+  "name": "sys_lab",
+  "version": "1.0.0",
+  "description": "Trabalho de Extensão em Node.js e Js",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/isaqxd/sys_lab.git"
+  },
+  "keywords": [
+    "Node",
+    "Javascript",
+    "HTML5",
+    "CSS3"
+  ],
+  "author": "isaqxd",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/isaqxd/sys_lab/issues"
+  },
+  "homepage": "https://github.com/isaqxd/sys_lab#readme",
+  "dependencies": {
+    "express": "^5.1.0",
+    "mysql2": "^3.15.3",
+    "nodemon": "^3.1.10"
+  }
+}
