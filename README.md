@@ -22,6 +22,7 @@ Este projeto utiliza duas branches principais:
    git fetch upstream
    git checkout dev
    git pull upstream dev
+   git push -u origin dev
    ```
 5. Instale as dependências do projeto (entre na pasta com package.json e rode):
    ```bash
