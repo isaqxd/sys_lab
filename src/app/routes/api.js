@@ -13,5 +13,8 @@ router.use('/sala', salaRoutes);
 const recursoRoutes = require('./recurso');
 router.use('/recurso', recursoRoutes);
 
+const statusRoutes = require('./status-reserva');
+router.use('/statusReserva', statusRoutes);
+
 
 module.exports = router;
