@@ -51,7 +51,7 @@ CREATE TABLE SALA_RECURSO (
     FOREIGN KEY (fk_recurso_id) REFERENCES RECURSO(id_recurso)
 );
 
-CCREATE TABLE SLOT_RESERVA (
+CREATE TABLE SLOT_RESERVA (
     id_slot_reserva INT AUTO_INCREMENT PRIMARY KEY,
     fk_reserva_id INT,
     fk_horario_disponivel_id INT,
