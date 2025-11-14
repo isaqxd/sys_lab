@@ -16,5 +16,8 @@ router.use('/recurso', recursoRoutes);
 const slotRoutes = require('./slot-reserva');
 router.use('/slotReserva', slotRoutes);
 
+const reservaRoutes = require('./reserva');
+router.use('/reserva', reservaRoutes);
+
 
 module.exports = router;

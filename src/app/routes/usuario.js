@@ -10,7 +10,7 @@ router.post('/save', (req, res) => {
     if (Array.isArray(req.body)) {
         const usuarios = req.body;
         const values = usuarios.map(u => [u.nome, u.email, u.senha]);
-        const query = 'INSERT INTO usuario (nome, email, senha) VALUES ?';
+        const query = 'INSERT INTO USUARIO (nome, email, senha) VALUES ?';
 
         return db.query(query, [values], (err, result) => {
             if (err) {
