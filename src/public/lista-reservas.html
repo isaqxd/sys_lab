@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservas</title>
+</head>
+
+<script>
+    async function carregarReservas() {
+        try {
+            const res = await fetch('/api/reserva/findAll'); // fetch relativo agora
+            const data = await res.json();
+
+            if (!data.sucesso) {
+                console.error('Erro ao carregar reservas:', data.erro);
+                return;
+            }
+
+            const reservas = data.data;
+
+            const hoje = new Date();
+            const seteDiasAtras = new Date();
+            seteDiasAtras.setDate(hoje.getDate() - 7);
+
+            // Seções
+            const secAtuais = document.getElementById('reservas_atuais');
+            const secPassadas = document.getElementById('reserva_passado');
+            const secCanceladas = document.getElementById('reserva_canceladas');
+
+            // Reservas futuras e do dia
+            const atuais = reservas
+                .filter(r => new Date(r.data_reserva) >= hoje)
+                .sort((a, b) => new Date(a.data_reserva) - new Date(b.data_reserva)); // dia mais próximo primeiro
+
+            secAtuais.innerHTML = atuais.map(r => `
+            <div>Reserva #${r.id_reserva} - Sala ${r.fk_sala} - ${r.data_reserva} - ${r.status}</div>
+        `).join('');
+
+            // Reservas passadas sem CONFIRMADA nem CANCELADA
+            const passadas = reservas
+                .filter(r => new Date(r.data_reserva) < hoje && r.status !== 'CONFIRMADA' && r.status !== 'CANCELADA');
+
+            secPassadas.innerHTML = passadas.map(r => `
+            <div>Reserva #${r.id_reserva} - Sala ${r.fk_sala} - ${r.data_reserva} - ${r.status}</div>
+        `).join('');
+
+            // Canceladas nos últimos 7 dias
+            const canceladasRecentes = reservas
+                .filter(r => r.status === 'CANCELADA' && new Date(r.data_reserva) >= seteDiasAtras)
+                .sort((a, b) => new Date(a.data_reserva) - new Date(b.data_reserva));
+
+            secCanceladas.innerHTML = canceladasRecentes.map(r => `
+            <div>Reserva #${r.id_reserva} - Sala ${r.fk_sala} - ${r.data_reserva} - ${r.status}</div>
+        `).join('');
+
+        } catch (err) {
+            console.error('Erro ao buscar reservas:', err);
+        }
+    }
+
+    carregarReservas();
+</script>
+
+<body>
+    <header>
+        <li>
+            <ul>EXEMPLO</ul>
+            <ul>EXEMPLO</ul>
+            <ul>EXEMPLO</ul>
+        </li>
+    </header>
+
+    <main>
+        <section id="reservas_atuais">
+            <h2>Reservas do dia e futuras</h2>
+        </section>
+        <section id="reserva_passado">
+            <h2>Reservas passadas</h2>
+        </section>
+        <section id="reserva_canceladas">
+            <h2>Reservas canceladas</h2>
+        </section>
+
+    </main>
+</body>
+
+</html>

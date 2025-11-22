@@ -67,7 +67,7 @@ CREATE TABLE reserva (
 
 -- 8. TABELA AUDITORIA
 CREATE TABLE auditoria (
-    id_log INT AUTO_INCREMENT PRIMARY KEY,
+    id_auditoria INT AUTO_INCREMENT PRIMARY KEY,
     fk_usuario INT,
     acao VARCHAR(50),
     descricao TEXT,

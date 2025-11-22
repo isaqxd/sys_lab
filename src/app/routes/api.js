@@ -2,12 +2,12 @@
 const express = require('express');
 const router = express.Router();
 
-router.use('/auditoria', require('../controllers/auditoria'));
-router.use('/horario', require('../controllers/horario'));
-router.use('/recurso', require('../controllers/recurso'));
-router.use('/reserva', require('../controllers/reserva'));
-router.use('/sala-recurso', require('../controllers/sala-recurso'));
-router.use('/sala', require('../controllers/sala'));
-router.use('/usuario', require('../controllers/usuario'));
+router.use('/auditoria', require('../controllers/auditoriaController'));
+router.use('/horario', require('../controllers/horarioController'));
+router.use('/recurso', require('../controllers/recursoController'));
+router.use('/reserva', require('../controllers/reservaController'));
+router.use('/sala-recurso', require('../controllers/salaRecursoController'));
+router.use('/sala', require('../controllers/salaController'));
+router.use('/usuario', require('../controllers/usuarioControllerrio'));
 
 module.exports = router;

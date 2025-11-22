@@ -26,7 +26,7 @@ function buscarTodos(callback) {
 }
 
 function buscarPorId(id, callback) {
-    const queryFindById = 'SELECT * FROM USUARIO WHERE id_usuario = ?';
+    const queryFindById = 'SELECT * FROM usuario WHERE id_usuario = ?';
     db.query(queryFindById, [id], callback);
 }
 
@@ -49,9 +49,10 @@ function atualizarParcial(id, camposSQL, valores, callback) {
     );
 }
 
-function desativar(id, callback) {
+function desativarSala(id, callback) {
+    const queryDesativar = 'UPDATE usuario SET status_usuario = FALSE WHERE id_usuario = ?';
     db.query(
-        'UPDATE usuario SET status_usuario = FALSE WHERE id_usuario = ?',
+        queryDesativar,
         [id],
         callback
     );
@@ -64,5 +65,5 @@ module.exports = {
     buscarPorId,
     atualizarUsuario,
     atualizarParcial,
-    desativar
+    desativarSala
 };

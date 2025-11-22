@@ -44,7 +44,7 @@ function atualizarParcial(id, camposSQL, valores, callback) {
     );
 }
 
-function deletar(id, callback) {
+function deletarReserva(id, callback) {
     db.query('DELETE FROM reserva WHERE id_reserva = ?', [id], callback);
 }
 
@@ -55,5 +55,5 @@ module.exports = {
     buscarPorId,
     atualizarReserva,
     atualizarParcial,
-    deletar
+    deletarReserva
 };

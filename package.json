@@ -5,7 +5,14 @@
   "main": "server.js",
   "scripts": {
     "start": "nodemon server.js",
-    "test": "jest"
+    "test": "jest --runInBand"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "verbose": true,
+    "roots": [
+      "<rootDir>/tests"
+    ]
   },
   "repository": {
     "type": "git",
@@ -24,6 +31,7 @@
   },
   "homepage": "https://github.com/isaqxd/sys_lab#readme",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^5.1.0",
     "mysql2": "^3.15.3",
     "nodemon": "^3.1.10"
