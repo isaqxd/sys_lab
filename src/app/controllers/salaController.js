@@ -74,4 +74,17 @@ router.patch('/updatePartial/:id', (req, res) => {
   });
 });
 
+router.get('/recursos-disponiveis', (req, res) => {
+    salaService.buscarRecursosDisponiveis((err, recursos) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ 
+                sucesso: false, 
+                erro: 'Erro ao buscar recursos disponíveis' 
+            });
+        }
+        res.json({ sucesso: true, data: recursos });
+    });
+});
+
 module.exports = router;

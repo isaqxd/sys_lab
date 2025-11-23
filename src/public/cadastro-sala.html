@@ -1,0 +1,130 @@
+<body>
+    <h1>Cadastro de Sala</h1>
+    
+    <div id="message"></div>
+    
+    <form id="formSala">
+        <label for="nome">
+            Nome: 
+            <input type="text" id="nome" name="nome" required>
+        </label>
+        
+        <label for="capacidade">
+            Capacidade: 
+            <input type="number" id="capacidade" name="capacidade" min="1" required>
+        </label>
+        
+        <h3>Recursos</h3>
+        <div id="checkbox_recursos" class="checkbox-group">
+            <div class="loading">Carregando recursos...</div>
+        </div>
+        
+        <button type="submit">Cadastrar Sala</button>
+    </form>
+
+    <script>
+        // URL base da sua API - ajuste conforme necessário
+        const API_BASE = 'http://localhost:3000/api';
+        
+        // Carrega os recursos disponíveis ao carregar a página
+        document.addEventListener('DOMContentLoaded', function() {
+            carregarRecursos();
+        });
+        
+        // Função para carregar os recursos do backend
+        async function carregarRecursos() {
+            try {
+                const response = await fetch(`${API_BASE}/sala/recursos-disponiveis`);
+                const result = await response.json();
+                
+                const container = document.getElementById('checkbox_recursos');
+                
+                if (result.sucesso && result.data) {
+                    container.innerHTML = ''; // Remove o "Carregando..."
+                    
+                    result.data.forEach(recurso => {
+                        const div = document.createElement('div');
+                        div.className = 'recurso-item';
+                        
+                        div.innerHTML = `
+                            <input type="checkbox" id="recurso_${recurso.id_recurso}" 
+                                   name="recursos" value="${recurso.id_recurso}">
+                            <label for="recurso_${recurso.id_recurso}">${recurso.nome}</label>
+                        `;
+                        
+                        container.appendChild(div);
+                    });
+                } else {
+                    container.innerHTML = '<div class="error">Erro ao carregar recursos</div>';
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                document.getElementById('checkbox_recursos').innerHTML = 
+                    '<div class="error">Erro ao carregar recursos</div>';
+            }
+        }
+        
+        // Manipula o envio do formulário
+        document.getElementById('formSala').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Coleta os dados do formulário
+            const formData = new FormData(this);
+            const nome = formData.get('nome');
+            const capacidade = parseInt(formData.get('capacidade'));
+            
+            // Coleta os recursos selecionados
+            const recursosSelecionados = [];
+            document.querySelectorAll('input[name="recursos"]:checked').forEach(checkbox => {
+                recursosSelecionados.push(parseInt(checkbox.value));
+            });
+            
+            // Prepara o payload
+            const salaData = {
+                nome: nome,
+                capacidade: capacidade,
+                status: 'DISPONIVEL',
+                recursos: recursosSelecionados
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/sala/save`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(salaData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.sucesso) {
+                    showMessage('Sala cadastrada com sucesso!', 'success');
+                    // Limpa o formulário
+                    document.getElementById('formSala').reset();
+                    // Desmarca todos os checkboxes
+                    document.querySelectorAll('input[name="recursos"]:checked').forEach(checkbox => {
+                        checkbox.checked = false;
+                    });
+                } else {
+                    showMessage(`Erro: ${result.erro}`, 'error');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                showMessage('Erro ao cadastrar sala', 'error');
+            }
+        });
+        
+        // Função para mostrar mensagens
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = `<div class="${type}">${message}</div>`;
+            
+            // Remove a mensagem após 5 segundos
+            setTimeout(() => {
+                messageDiv.innerHTML = '';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
