@@ -10,6 +10,7 @@
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 16px;
+      background: #f4f4f4 !important; /* cinza claro */
     }
 
     h1, h2 {
@@ -100,6 +101,21 @@
     .link-voltar {
       display: inline-block;
       margin-bottom: 12px;
+    }
+
+    .btn-remove {
+      margin-left: 8px;
+      padding: 2px 8px;
+      font-size: 12px;
+      background: #d32f2f;
+      color: #fff;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-remove:hover {
+      background: #b71c1c;
     }
   </style>
 </head>
@@ -285,6 +301,32 @@
       }
     });
 
+    // NOVO: remover vínculo sala x recurso
+    async function removerRecursoSala(fk_sala, fk_recurso) {
+      try {
+        const resp = await fetch(`${API_BASE}/sala-recurso/remove`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fk_sala: Number(fk_sala),
+            fk_recurso: Number(fk_recurso)
+          })
+        });
+
+        const json = await resp.json();
+
+        if (!resp.ok || !json.sucesso) {
+          throw new Error(json.erro || 'Erro ao remover vínculo');
+        }
+
+        showMessage(msgVinculo, 'Recurso removido da sala com sucesso!', 'success');
+        await carregarSalasComRecursos();
+      } catch (e) {
+        console.error(e);
+        showMessage(msgVinculo, e.message, 'error');
+      }
+    }
+
     async function carregarSalasComRecursos() {
       listaSalasDiv.textContent = 'Carregando salas e recursos...';
 
@@ -324,6 +366,18 @@
               jsonRecursos.data.forEach(rec => {
                 const li = document.createElement('li');
                 li.textContent = rec.nome;
+
+                // Botão de remover vínculo
+                const btnRemover = document.createElement('button');
+                btnRemover.textContent = 'Remover';
+                btnRemover.className = 'btn-remove';
+                btnRemover.addEventListener('click', async () => {
+                  const confirmar = confirm(`Remover o recurso "${rec.nome}" da sala "${sala.nome}"?`);
+                  if (!confirmar) return;
+                  await removerRecursoSala(sala.id_sala, rec.id_recurso);
+                });
+
+                li.appendChild(btnRemover);
                 ul.appendChild(li);
               });
             }
