@@ -5,11 +5,25 @@ const reservaService = require('../services/reservaService');
 router.post('/save', (req, res) => {
     reservaService.salvar(req.body, (err, result) => {
         if (err) {
+            // Erro de validação de dados básicos
             if (err.tipo === 'VALIDACAO')
                 return res.status(400).json({ sucesso: false, erro: err.mensagem });
 
-            if (err.code === 'ER_DUP_ENTRY')
-                return res.status(409).json({ sucesso: false, erro: 'Conflito de reserva' });
+            // ERRO DE DUPLICIDADE (Onde acontece o conflito)
+            if (err.code === 'ER_DUP_ENTRY') {
+                // Verifica se o erro veio da restrição do PROFESSOR
+                if (err.sqlMessage && err.sqlMessage.includes('unq_professor_turno')) {
+                    return res.status(409).json({ 
+                        sucesso: false, 
+                        erro: 'O professor não pode dar duas aulas ao mesmo tempo.' 
+                    });
+                }
+                // Caso contrário, é erro de SALA ocupada
+                return res.status(409).json({ 
+                    sucesso: false, 
+                    erro: 'Esta sala já está reservada para este horário.' 
+                });
+            }
 
             console.error(err);
             return res.status(500).json({ sucesso: false, erro: 'Erro ao cadastrar reserva' });
