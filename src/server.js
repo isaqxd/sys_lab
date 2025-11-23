@@ -2,8 +2,10 @@
 const express = require('express');
 const path = require('path');
 const apiRoutes = require('./app/routes/api');
-
+const cors = require('cors');
 const app = express();
+
+app.use(cors());
 
 // Middlewares para parsing de JSON e URL-encoded
 app.use(express.json());

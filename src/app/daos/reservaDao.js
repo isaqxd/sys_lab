@@ -48,6 +48,22 @@ function deletarReserva(id, callback) {
     db.query('DELETE FROM reserva WHERE id_reserva = ?', [id], callback);
 }
 
+function buscarReserva(id, callback) {
+    const consultaProfessor = `
+        SELECT 
+            r.id_reserva, 
+            r.data_reserva, 
+            r.status, 
+            r.motivo, 
+            s.nome AS nome_sala
+        FROM reserva r
+        JOIN sala s ON s.id_sala = r.fk_sala
+        WHERE r.fk_usuario = ?
+        ORDER BY r.data_reserva DESC;
+    `;
+    db.query(consultaProfessor, [id], callback);
+}
+
 module.exports = {
     salvarReserva,
     salvarReservasEmLote,
@@ -55,5 +71,6 @@ module.exports = {
     buscarPorId,
     atualizarReserva,
     atualizarParcial,
-    deletarReserva
+    deletarReserva,
+    buscarReserva
 };

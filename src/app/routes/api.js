@@ -8,6 +8,6 @@ router.use('/recurso', require('../controllers/recursoController'));
 router.use('/reserva', require('../controllers/reservaController'));
 router.use('/sala-recurso', require('../controllers/salaRecursoController'));
 router.use('/sala', require('../controllers/salaController'));
-router.use('/usuario', require('../controllers/usuarioControllerrio'));
+router.use('/usuario', require('../controllers/usuarioController'));
 
 module.exports = router;

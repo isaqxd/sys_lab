@@ -16,14 +16,14 @@ function salvarUsuario(data, callback) {
                 return callback({ status: 400, erro: 'nome,email,senha obrigatórios' });
             }
         }
-        return usuarioDAO.inserirUsuariosEmLote(data, callback);
+        return usuarioDAO.salvarReservasEmLote(data, callback);
     }
 
     if (!validarNome(data.nome) || !validarEmail(data.email) || !data.senha) {
         return callback({ status: 400, erro: 'nome,email,senha obrigatórios' });
     }
 
-    usuarioDAO.inserirUsuario({
+    usuarioDAO.salvarUsuario({
         ...data,
         tipo: data.tipo ?? 'PROFESSOR',
         status_usuario: data.status_usuario ?? true

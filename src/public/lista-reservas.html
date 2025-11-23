@@ -1,89 +1,89 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reservas</title>
-</head>
-
-<script>
-    async function carregarReservas() {
-        try {
-            const res = await fetch('/api/reserva/findAll'); // fetch relativo agora
-            const data = await res.json();
-
-            if (!data.sucesso) {
-                console.error('Erro ao carregar reservas:', data.erro);
-                return;
-            }
-
-            const reservas = data.data;
-
-            const hoje = new Date();
-            const seteDiasAtras = new Date();
-            seteDiasAtras.setDate(hoje.getDate() - 7);
-
-            // Seções
-            const secAtuais = document.getElementById('reservas_atuais');
-            const secPassadas = document.getElementById('reserva_passado');
-            const secCanceladas = document.getElementById('reserva_canceladas');
-
-            // Reservas futuras e do dia
-            const atuais = reservas
-                .filter(r => new Date(r.data_reserva) >= hoje)
-                .sort((a, b) => new Date(a.data_reserva) - new Date(b.data_reserva)); // dia mais próximo primeiro
-
-            secAtuais.innerHTML = atuais.map(r => `
-            <div>Reserva #${r.id_reserva} - Sala ${r.fk_sala} - ${r.data_reserva} - ${r.status}</div>
-        `).join('');
-
-            // Reservas passadas sem CONFIRMADA nem CANCELADA
-            const passadas = reservas
-                .filter(r => new Date(r.data_reserva) < hoje && r.status !== 'CONFIRMADA' && r.status !== 'CANCELADA');
-
-            secPassadas.innerHTML = passadas.map(r => `
-            <div>Reserva #${r.id_reserva} - Sala ${r.fk_sala} - ${r.data_reserva} - ${r.status}</div>
-        `).join('');
-
-            // Canceladas nos últimos 7 dias
-            const canceladasRecentes = reservas
-                .filter(r => r.status === 'CANCELADA' && new Date(r.data_reserva) >= seteDiasAtras)
-                .sort((a, b) => new Date(a.data_reserva) - new Date(b.data_reserva));
-
-            secCanceladas.innerHTML = canceladasRecentes.map(r => `
-            <div>Reserva #${r.id_reserva} - Sala ${r.fk_sala} - ${r.data_reserva} - ${r.status}</div>
-        `).join('');
-
-        } catch (err) {
-            console.error('Erro ao buscar reservas:', err);
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reservas</title>
+  <style>
+    section {
+      margin-bottom: 2rem;
     }
 
-    carregarReservas();
-</script>
+    .reserva {
+      border: 1px solid #ccc;
+      padding: 8px;
+      margin-bottom: 6px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
 
 <body>
-    <header>
-        <li>
-            <ul>EXEMPLO</ul>
-            <ul>EXEMPLO</ul>
-            <ul>EXEMPLO</ul>
-        </li>
-    </header>
+  <header>
+    <h1>Minhas Reservas</h1>
+  </header>
 
-    <main>
-        <section id="reservas_atuais">
-            <h2>Reservas do dia e futuras</h2>
-        </section>
-        <section id="reserva_passado">
-            <h2>Reservas passadas</h2>
-        </section>
-        <section id="reserva_canceladas">
-            <h2>Reservas canceladas</h2>
-        </section>
+  <main>
+    <section id="reservas_atuais">
+      <h2>Reservas do dia e futuras</h2>
+      <div class="reserva-container">Carregando...</div>
+    </section>
 
-    </main>
+    <section id="reserva_passado">
+      <h2>Reservas passadas</h2>
+      <div class="reserva-container">Carregando...</div>
+    </section>
+
+    <section id="reserva_canceladas">
+      <h2>Reservas canceladas</h2>
+      <div class="reserva-container">Carregando...</div>
+    </section>
+  </main>
+
+  <script>
+    const professorId = 1;
+    const apiUrl = `/api/reserva/professor/${professorId}`;
+
+    const renderReservas = (elementId, reservas) => {
+      const container = document.querySelector(`#${elementId} .reserva-container`);
+      container.innerHTML = ''; // limpa apenas o conteúdo do container, não o <h2>
+
+      if (reservas.length === 0) {
+        container.innerHTML = '<p>Nenhuma reserva</p>';
+        return;
+      }
+
+      reservas.forEach(r => {
+        const div = document.createElement('div');
+        div.className = 'reserva';
+        div.innerHTML = `
+      <strong>Sala:</strong> ${r.nome_sala}<br>
+      <strong>Data:</strong> ${new Date(r.data_reserva).toLocaleDateString('pt-BR')}<br>
+      <strong>Status:</strong> ${r.status}<br>
+      <strong>Motivo:</strong> ${r.motivo || '-'}
+    `;
+        container.appendChild(div);
+      });
+    };
+
+    fetch(apiUrl)
+      .then(resp => resp.json())
+      .then(data => {
+        if (!data.sucesso) {
+          alert('Erro ao carregar reservas');
+          return;
+        }
+
+        renderReservas('reservas_atuais', data.data.atuais);
+        renderReservas('reserva_passado', data.data.passadas);
+        renderReservas('reserva_canceladas', data.data.canceladas);
+      })
+      .catch(err => {
+        console.error(err);
+        alert('Erro ao conectar com a API');
+      });
+  </script>
 </body>
 
 </html>
