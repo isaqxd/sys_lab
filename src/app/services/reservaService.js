@@ -51,17 +51,37 @@ function buscarTodas(callback) {
 }
 
 function atualizarParcial(id, campos, callback) {
-  const allowed = ['fk_usuario', 'fk_sala', 'fk_horario', 'data_reserva', 'motivo', 'data_criacao', 'status'];
+  const allowed = [
+    'fk_usuario',
+    'fk_sala',
+    'fk_horario',
+    'data_reserva',
+    'motivo',
+    'data_criacao',
+    'status'
+  ];
+
   const fieldsSQL = [];
   const values = [];
 
-  for (const k of Object.keys(campos)) {
-    if (!allowed.includes(k)) return callback({ status: 400, erro: `Campo inválido: ${k}` });
-    fieldsSQL.push(`${k} = ?`);
-    values.push(campos[k]);
+  for (const campo of Object.keys(campos)) {
+    if (!allowed.includes(campo)) {
+      return callback({
+        status: 400,
+        erro: `Campo inválido: ${campo}`
+      });
+    }
+
+    fieldsSQL.push(`${campo} = ?`);
+    values.push(campos[campo]);
   }
 
-  reservaDao.atualizarParcial(id, fieldsSQL.join(', '), values, callback);
+  reservaDao.atualizarParcial(
+    id,
+    fieldsSQL.join(', '),
+    values,
+    callback
+  );
 }
 
 function buscarPorProfessor(professorId, callback) {
