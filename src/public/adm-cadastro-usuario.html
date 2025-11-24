@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cadastro Usuário</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <style>
+    body {
+      background-color: #f3f4f6;
+      overflow-x: hidden;
+    }
+
+    /* Sidebar e Layout */
+    #wrapper {
+      display: flex;
+      width: 100%;
+      min-height: 100vh;
+    }
+
+    #sidebar-wrapper {
+      min-height: 100vh;
+      width: 250px;
+      margin-left: 0;
+      background-color: #212529;
+      color: #fff;
+      transition: margin .25s ease-out;
+      position: fixed;
+      z-index: 1000;
+    }
+
+    #sidebar-wrapper .sidebar-heading {
+      padding: 1.5rem 1.25rem;
+      font-size: 1.5rem;
+      font-weight: bold;
+      background-color: #1a1e21;
+      text-align: center;
+      border-bottom: 1px solid #444;
+    }
+
+    .list-group-item-action {
+      background-color: transparent;
+      color: #b3b3b3;
+      border: none;
+      padding: 15px 20px;
+      transition: all 0.2s;
+    }
+
+    .list-group-item-action:hover {
+      background-color: #343a40;
+      color: #fff;
+      padding-left: 25px;
+    }
+
+    .list-group-item-action.active {
+      background-color: #0d6efd;
+      color: #fff;
+      border-left: 4px solid #fff;
+    }
+
+    .list-group-item i {
+      margin-right: 10px;
+    }
+
+    #page-content-wrapper {
+      width: 100%;
+      margin-left: 250px;
+      transition: margin .25s ease-out;
+    }
+
+    .navbar-top {
+      background-color: #fff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+      padding: 15px 30px;
+    }
+
+    /* Cards */
+    .card-dashboard {
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+    }
+
+    @media (max-width: 768px) {
+      #sidebar-wrapper {
+        margin-left: -250px;
+      }
+
+      #page-content-wrapper {
+        margin-left: 0;
+      }
+
+      #wrapper.toggled #sidebar-wrapper {
+        margin-left: 0;
+      }
+    }
+
+    /* Overlay para Mobile */
+    #overlay {
+      display: none;
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 990;
+      cursor: pointer;
+    }
+
+    #wrapper.toggled #overlay {
+      display: block;
+    }
+
+    #sidebar-wrapper {
+      z-index: 1000;
+    }
+
+    /* Formulário de Cadastro */
+    .form-container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .form-label {
+      font-weight: 600;
+      color: #495057;
+    }
+
+    .form-control:focus {
+      border-color: #0d6efd;
+      box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="d-flex" id="wrapper">
+    <div id="sidebar-wrapper">
+      <img src="img/sys_lab_logo_white.svg" alt="SysLab Logo" class="sidebar-heading img-fluid p-3">
+      <div class="list-group list-group-flush mt-3">
+        <!-- CORREÇÃO: Links relativos sem barra no início -->
+        <a href="adm-portal.html" class="list-group-item list-group-item-action">
+          <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+        <a href="adm-cadastro-usuario.html" class="list-group-item list-group-item-action">
+          <i class="bi bi-people"></i> Gerenciar Usuários
+        </a>
+        <a href="adm-lista-reservas.html" class="list-group-item list-group-item-action">
+          <i class="bi bi-calendar-check"></i> Gerenciar Reservas
+        </a>
+        <a href="index.html" class="list-group-item list-group-item-action text-danger mt-5" onclick="logout()">
+          <i class="bi bi-box-arrow-left"></i> Sair
+        </a>
+      </div>
+    </div>
+
+    <div id="page-content-wrapper">
+      <nav class="navbar navbar-expand-lg navbar-top">
+        <div class="container-fluid">
+          <button class="btn btn-outline-dark d-md-none" id="menu-toggle">
+            <i class="bi bi-list"></i>
+          </button>
+          <div class="ms-auto d-flex align-items-center">
+            <div class="me-3 text-end d-none d-md-block">
+              <span class="d-block fw-bold text-dark" id="user-name-display">...</span>
+              <small class="text-muted" id="user-type-display">...</small>
+            </div>
+            <img src="" id="user-avatar" class="rounded-circle" width="40" height="40" alt="Avatar">
+          </div>
+        </div>
+      </nav>
+
+      <div class="container-fluid px-4 mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h2 class="mb-0 text-dark">Cadastro de Usuário</h2>
+          <!-- CORREÇÃO: Link relativo sem barra -->
+          <a href="adm-portal.html" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Voltar para Lista
+          </a>
+        </div>
+
+        <!-- Mensagens -->
+        <div id="message" class="alert alert-dismissible fade show" style="display: none;" role="alert">
+          <span id="message-text"></span>
+          <button type="button" class="btn-close" onclick="fecharMensagem()"></button>
+        </div>
+
+        <!-- Formulário de Cadastro -->
+        <div class="card card-dashboard">
+          <div class="card-header bg-white py-3">
+            <h6 class="m-0 fw-bold text-primary">
+              <i class="bi bi-person-plus"></i> Informações do Usuário
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="form-container">
+              <form id="formCad">
+                <div class="row g-3">
+                  <div class="col-12">
+                    <label for="nome" class="form-label">Nome Completo</label>
+                    <input type="text" class="form-control" id="nome" name="nome" required
+                      placeholder="Digite o nome completo">
+                  </div>
+
+                  <div class="col-12">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" required
+                      placeholder="Digite o email">
+                  </div>
+
+                  <div class="col-12">
+                    <label for="senha" class="form-label">Senha</label>
+                    <input type="password" class="form-control" id="senha" name="senha" required
+                      placeholder="Digite a senha">
+                    <div class="form-text">A senha deve ter pelo menos 6 caracteres.</div>
+                  </div>
+
+                  <div class="col-12">
+                    <label for="tipo" class="form-label">Tipo de Usuário</label>
+                    <select class="form-select" id="tipo" name="tipo" required>
+                      <option value="PROFESSOR">Professor</option>
+                      <option value="ADMIN">Administrador</option>
+                    </select>
+                  </div>
+
+                  <div class="col-12">
+                    <button type="submit" class="btn btn-primary w-100 py-2">
+                      <i class="bi bi-person-plus"></i> Cadastrar Usuário
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="overlay" onclick="fecharMenu()"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const API_BASE = 'http://localhost:3000/api';
+
+    // 1. Inicialização e Auth
+    document.addEventListener('DOMContentLoaded', async () => {
+      const usuarioNome = localStorage.getItem('usuario_nome');
+      const usuarioTipo = localStorage.getItem('usuario_tipo');
+      const usuarioId = localStorage.getItem('usuario_id');
+
+      if (!usuarioId) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      // Verificar se é admin
+      if (usuarioTipo !== 'ADMIN') {
+        mostrarMensagem('Acesso negado. Apenas administradores podem cadastrar usuários.', 'danger');
+        setTimeout(() => {
+          window.location.href = 'portal_professor.html';
+        }, 2000);
+        return;
+      }
+
+      // Preenche Header
+      document.getElementById('user-name-display').innerText = usuarioNome;
+      document.getElementById('user-type-display').innerText = usuarioTipo;
+      document.getElementById('user-avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(usuarioNome)}&background=0D6EFD&color=fff`;
+
+      // Configurar o formulário
+      configurarFormulario();
+    });
+
+    function configurarFormulario() {
+      document.getElementById('formCad').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        const nome = formData.get('nome');
+        const email = formData.get('email');
+        const senha = formData.get('senha');
+        const tipo = formData.get('tipo');
+
+        // Validação básica
+        if (senha.length < 6) {
+          mostrarMensagem('A senha deve ter pelo menos 6 caracteres.', 'warning');
+          return;
+        }
+
+        const cadData = {
+          nome: nome,
+          email: email,
+          senha: senha,
+          tipo: tipo
+        };
+
+        try {
+          const response = await fetch(`${API_BASE}/usuario/save`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(cadData)
+          });
+
+          const result = await response.json();
+
+          if (response.ok && result.sucesso) {
+            mostrarMensagem('Usuário cadastrado com sucesso!', 'success');
+            this.reset();
+            // Volta para o tipo padrão (PROFESSOR)
+            document.getElementById('tipo').value = 'PROFESSOR';
+          } else {
+            const errMsg = result.erro || result.message || 'Erro desconhecido ao cadastrar usuário';
+            mostrarMensagem(`Erro: ${errMsg}`, 'danger');
+          }
+        } catch (error) {
+          console.error('Erro:', error);
+          mostrarMensagem('Erro ao cadastrar usuário. Verifique o console para mais detalhes.', 'danger');
+        }
+      });
+    }
+
+    function mostrarMensagem(texto, tipo = 'info') {
+      const messageDiv = document.getElementById('message');
+      const messageText = document.getElementById('message-text');
+
+      messageText.innerText = texto;
+      messageDiv.className = `alert alert-${tipo} alert-dismissible fade show`;
+      messageDiv.style.display = 'block';
+
+      // Auto-esconder após 5 segundos para mensagens de sucesso/info
+      if (tipo === 'success' || tipo === 'info') {
+        setTimeout(() => {
+          fecharMensagem();
+        }, 5000);
+      }
+    }
+
+    function fecharMensagem() {
+      document.getElementById('message').style.display = 'none';
+    }
+
+    // Lógica do menu mobile
+    const wrapper = document.getElementById("wrapper");
+    const overlay = document.getElementById("overlay");
+
+    document.getElementById("menu-toggle").onclick = function (e) {
+      e.stopPropagation();
+      wrapper.classList.toggle("toggled");
+      overlay.style.display = wrapper.classList.contains("toggled") ? "block" : "none";
+    };
+
+    function fecharMenu() {
+      wrapper.classList.remove("toggled");
+      overlay.style.display = "none";
+    }
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+
+</html>

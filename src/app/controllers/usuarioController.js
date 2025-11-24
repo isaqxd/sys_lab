@@ -13,8 +13,8 @@ router.post('/save', (req, res) => {
       return res.status(500).json({ sucesso: false, erro: 'Erro no banco' });
     }
 
-    const response = Array.isArray(req.body) 
-      ? { inserted: result.affectedRows } 
+    const response = Array.isArray(req.body)
+      ? { inserted: result.affectedRows }
       : { id_usuario: result.insertId };
     res.status(201).json({ sucesso: true, data: response });
   });
@@ -47,11 +47,25 @@ router.get('/findById/:id', (req, res) => {
 router.delete('/deleteById/:id', (req, res) => {
   usuarioService.desativar(req.params.id, (err, result) => {
     if (err) {
-      console.error(err);
-      return res.status(500).json({ sucesso: false, erro: 'Erro ao desativar' });
+      console.error('Erro no controller:', err);
+      return res.status(err.status || 500).json({
+        sucesso: false,
+        erro: err.erro || 'Erro ao desativar usuário'
+      });
     }
-    if (result.affectedRows === 0) return res.status(404).json({ sucesso: false, erro: 'Usuário não encontrado' });
-    res.json({ sucesso: true, data: { updated: result.affectedRows } });
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        sucesso: false,
+        erro: 'Usuário não encontrado'
+      });
+    }
+    res.json({
+      sucesso: true,
+      data: {
+        updated: result.affectedRows,
+        message: 'Usuário desativado com sucesso'
+      }
+    });
   });
 });
 
@@ -80,6 +94,24 @@ router.patch('/updatePartial/:id', (req, res) => {
     }
     if (result.affectedRows === 0) return res.status(404).json({ sucesso: false, erro: 'Usuário não encontrado' });
     res.json({ sucesso: true, data: { updated: result.affectedRows } });
+  });
+});
+
+// findByEmail
+router.get('/findByEmail', (req, res) => {
+  const { email } = req.query;
+  
+  if (!email) {
+    return res.status(400).json({ sucesso: false, erro: 'Email é obrigatório' });
+  }
+
+  usuarioService.findEmail(email, (err, row) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ sucesso: false, erro: 'Erro ao buscar' });
+    }
+    if (!row) return res.status(404).json({ sucesso: false, erro: 'Email não encontrado' });
+    res.json({ sucesso: true, data: row });
   });
 });
 

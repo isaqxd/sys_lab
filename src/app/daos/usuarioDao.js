@@ -6,9 +6,10 @@ function buscarPorEmail(email, callback) {
     db.query(sql, [email], callback);
 }
 
-module.exports = {
-    buscarPorEmail
-};
+function findByEmail(email, callback) {
+    const sql = 'SELECT * FROM usuario WHERE email = ?';
+    db.query(sql, [email], callback)
+}
 
 function salvarUsuario(usuario, callback) {
     const { nome, email, senha, tipo, status_usuario } = usuario;
@@ -59,7 +60,7 @@ function atualizarParcial(id, camposSQL, valores, callback) {
     );
 }
 
-function desativarSala(id, callback) {
+function desativarUsuario(id, callback) {
     const queryDesativar = 'UPDATE usuario SET status_usuario = FALSE WHERE id_usuario = ?';
     db.query(
         queryDesativar,
@@ -75,6 +76,7 @@ module.exports = {
     buscarPorId,
     atualizarUsuario,
     atualizarParcial,
-    desativarSala,
-    buscarPorEmail
+    buscarPorEmail,
+    desativarUsuario,
+    findByEmail
 };

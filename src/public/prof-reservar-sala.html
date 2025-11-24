@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Reserva - SysLab</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    
+    <style>
+        body { background-color: #f3f4f6; overflow-x: hidden; }
+
+        /* --- LAYOUT DO PORTAL (SIDEBAR) --- */
+        #wrapper { display: flex; width: 100%; min-height: 100vh; }
+        #sidebar-wrapper { min-height: 100vh; width: 250px; margin-left: 0; background-color: #212529; color: #fff; transition: margin .25s ease-out; position: fixed; z-index: 1000; }
+        #sidebar-wrapper .sidebar-heading { padding: 1.5rem 1.25rem; font-size: 1.5rem; font-weight: bold; background-color: #1a1e21; text-align: center; border-bottom: 1px solid #444; }
+        .list-group-item-action { background-color: transparent; color: #b3b3b3; border: none; padding: 15px 20px; transition: all 0.2s; }
+        .list-group-item-action:hover { background-color: #343a40; color: #fff; padding-left: 25px; }
+        .list-group-item-action.active { background-color: #0d6efd; color: #fff; border-left: 4px solid #fff; }
+        .list-group-item i { margin-right: 10px; }
+        #page-content-wrapper { width: 100%; margin-left: 250px; transition: margin .25s ease-out; padding-bottom: 100px; /* Espaço para barra flutuante */ }
+        .navbar-top { background-color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.08); padding: 15px 30px; }
+
+        @media (max-width: 768px) {
+            #sidebar-wrapper { margin-left: -250px; }
+            #page-content-wrapper { margin-left: 0; }
+            #wrapper.toggled #sidebar-wrapper { margin-left: 0; }
+        }
+
+        /* --- CSS ESPECÍFICO DA RESERVA --- */
+        .bloco-sala { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .titulo-sala { font-size: 1.2rem; color: #2c3e50; margin-bottom: 15px; border-bottom: 2px solid #f0f0f0; padding-bottom: 5px; }
+        .grupo-turnos { display: flex; gap: 15px; flex-wrap: wrap; }
+
+        .sala-card {
+            background-color: #fff; border: 2px solid #ddd; border-radius: 8px;
+            padding: 10px 15px; cursor: pointer; width: 240px;
+            display: flex; align-items: center; justify-content: space-between;
+            transition: all 0.2s ease;
+        }
+        .sala-card:hover { border-color: #aaa; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .sala-card.selecionada { border-color: #0d6efd; background-color: #e7f1ff; box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.2); }
+
+        .sala-card.ocupada {
+            background-color: #f8f9fa; border-color: #e9ecef; cursor: not-allowed; opacity: 0.6; pointer-events: none;
+        }
+        .sala-card.ocupada .nome-turno, .sala-card.ocupada .cap-sala { color: #adb5bd; text-decoration: line-through; }
+        .sala-card.ocupada svg { stroke: #adb5bd !important; }
+
+        .info-sala { display: flex; flex-direction: column; }
+        .nome-turno { font-weight: bold; color: #333; font-size: 0.95rem; }
+        .cap-sala { font-size: 0.8rem; color: #666; }
+
+        /* Barra Flutuante Ajustada para o Portal */
+        .barra-bottom {
+            position: fixed; bottom: 0; right: 0;
+            background: white; border-top: 1px solid #ccc; padding: 15px;
+            text-align: right; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); 
+            z-index: 990; /* Abaixo do menu lateral */
+            width: 100%; /* Mobile default */
+            left: 0;
+        }
+
+        /* No Desktop, a barra deve começar DEPOIS do menu lateral */
+        @media (min-width: 768px) {
+            .barra-bottom {
+                left: 250px; /* Largura da sidebar */
+                width: calc(100% - 250px);
+            }
+        }
+
+        /* Flatpickr Custom */
+        .flatpickr-day { color: #333 !important; font-weight: 500; }
+        .flatpickr-day:not(.flatpickr-disabled) { color: #000 !important; font-weight: bold; }
+        .flatpickr-day.flatpickr-disabled { color: #ccc !important; }
+        .flatpickr-day.selected { background: #0d6efd !important; border-color: #0d6efd !important; color: #fff !important; }
+        
+        /* Animação Check */
+        .check-animado { width: 80px; height: 80px; border-radius: 50%; display: block; stroke-width: 2; stroke: #fff; stroke-miterlimit: 10; margin: 10px auto; box-shadow: inset 0px 0px 0px #198754; animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both; }
+        .check-animado__circle { stroke-dasharray: 166; stroke-dashoffset: 166; stroke-width: 2; stroke-miterlimit: 10; stroke: #198754; fill: none; animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards; }
+        .check-animado__check { transform-origin: 50% 50%; stroke-dasharray: 48; stroke-dashoffset: 48; animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards; }
+        @keyframes stroke { 100% { stroke-dashoffset: 0; } }
+        @keyframes scale { 0%, 100% { transform: none; } 50% { transform: scale3d(1.1, 1.1, 1); } }
+        @keyframes fill { 100% { box-shadow: inset 0px 0px 0px 50px #198754; } }
+
+        /* --- OVERLAY PARA MOBILE --- */
+        #overlay {
+            display: none; /* Escondido por padrão */
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5); /* Fundo preto transparente */
+            z-index: 990; /* Fica atrás do menu (1000) mas na frente do conteúdo */
+            cursor: pointer;
+        }
+
+        /* Quando o wrapper tiver a classe toggled (menu aberto), mostra o overlay */
+        #wrapper.toggled #overlay {
+            display: block;
+        }
+
+        /* Ajuste Z-Index para o Menu ficar acima do Overlay */
+        #sidebar-wrapper {
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="d-flex" id="wrapper">
+
+        <div id="sidebar-wrapper">
+            <img src="img/sys_lab_logo_white.svg" alt="SysLab Logo" class="sidebar-heading img-fluid p-3">
+            <div class="list-group list-group-flush mt-3">
+                <a href="prof-portal.html" id="link-dashboard-sidebar" class="list-group-item list-group-item-action">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+                <a href="prof-reservar-sala.html" class="list-group-item list-group-item-action active">
+                    <i class="bi bi-calendar-plus"></i> Nova Reserva
+                </a>
+                <a href="prof-lista-reservas.html" class="list-group-item list-group-item-action">
+                    <i class="bi bi-clock-history"></i> Minhas Reservas
+                </a>
+                <a href="#" class="list-group-item list-group-item-action text-danger mt-5" onclick="logout()">
+                    <i class="bi bi-box-arrow-left"></i> Sair
+                </a>
+            </div>
+        </div>
+
+        <div id="page-content-wrapper">
+            
+            <nav class="navbar navbar-expand-lg navbar-top">
+                <div class="container-fluid">
+                    <button class="btn btn-outline-dark d-md-none" id="menu-toggle">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <div class="ms-auto d-flex align-items-center">
+                        <div class="me-3 text-end d-none d-md-block">
+                            <span class="d-block fw-bold text-dark" id="user-name-display">...</span>
+                            <small class="text-muted" id="user-type-display">...</small>
+                        </div>
+                        <img src="" id="user-avatar" class="rounded-circle" width="40" height="40" alt="Avatar">
+                    </div>
+                </div>
+            </nav>
+
+            <div class="container-fluid px-4 mt-4">
+                <h2 class="mb-4 text-dark border-bottom pb-2">Nova Reserva de Laboratório</h2>
+
+                <div class="card p-4 mb-4 shadow-sm border-0">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Data:</label>
+                            <input type="text" id="data_reserva" class="form-control" placeholder="Selecione uma data..." readonly>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Horário:</label>
+                            <select id="horario" class="form-select">
+                                <option value="0" selected>Todos os Turnos</option>
+                                <option value="1">MANHÃ (09:00 - 12:00)</option>
+                                <option value="2">TARDE (13:00 - 18:00)</option>
+                                <option value="3">NOITE (19:00 - 22:00)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-primary w-100 fw-bold" onclick="buscarSalas()">
+                                <i class="bi bi-search"></i> BUSCAR DISPONIBILIDADE
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="loading" class="text-center my-5" style="display: none;">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2 text-muted">Verificando disponibilidade...</p>
+                </div>
+                
+                <p id="msg-sem-salas" class="alert alert-warning text-center" style="display:none;">
+                    Nenhuma sala encontrada para os filtros selecionados.
+                </p>
+
+                <div id="area-salas-dinamica"></div>
+            </div>
+            
+            <div class="barra-bottom">
+                <div class="container-fluid d-flex justify-content-between align-items-center px-4">
+                    <div>
+                        <small class="text-muted d-block">Selecionado:</small>
+                        <span id="txt-selecao" class="text-dark fw-bold fs-5">Nenhuma seleção</span>
+                    </div>
+                    <button id="btn-prosseguir" class="btn btn-success btn-lg px-5 shadow" onclick="abrirModalConfirmacao()" disabled>
+                        Prosseguir <i class="bi bi-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+        </div>
+    <div class="modal fade" id="modalConfirmacao" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="modal-titulo">Finalizar Reserva</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" id="btn-close-x"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="step-formulario">
+                        <div class="alert alert-light border shadow-sm">
+                            <p class="mb-1"><strong><i class="bi bi-geo-alt"></i> Sala:</strong> <span id="resumo-sala"></span></p>
+                            <p class="mb-1"><strong><i class="bi bi-clock"></i> Turno:</strong> <span id="resumo-turno"></span></p>
+                            <p class="mb-0"><strong><i class="bi bi-calendar-event"></i> Data:</strong> <span id="resumo-data"></span></p>
+                        </div>
+                        <div class="mb-3">
+                            <label for="modal-motivo" class="form-label fw-bold">Motivo da Reserva (Obrigatório):</label>
+                            <textarea class="form-control" id="modal-motivo" rows="3" placeholder="Ex: Aula de Reposição de Banco de Dados..."></textarea>
+                            <div class="invalid-feedback">Por favor, informe o motivo da reserva.</div>
+                        </div>
+                        <div id="msg-erro-modal" class="alert alert-danger" style="display: none;"></div>
+                    </div>
+
+                    <div id="step-sucesso" class="text-center d-none py-4">
+                        <svg class="check-animado" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                            <circle class="check-animado__circle" cx="26" cy="26" r="25" fill="none"/>
+                            <path class="check-animado__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                        </svg>
+                        <h3 class="text-success mt-3">Reserva Confirmada!</h3>
+                        <p class="text-muted">Sua sala foi reservada com sucesso.</p>
+                        <p class="fw-bold fs-5">ID da Reserva: #<span id="id-reserva-final"></span></p>
+                    </div>
+                </div>
+                <div class="modal-footer" id="modal-footer-btns">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btn-finalizar" onclick="finalizarReserva()">Confirmar</button>
+                </div>
+                <div class="modal-footer d-none justify-content-center" id="modal-footer-sucesso">
+                    <button type="button" class="btn btn-success px-5" onclick="location.reload()">Nova Reserva</button>
+                    <a href="#" id="link-dashboard-modal" class="btn btn-outline-secondary">Ir para Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="overlay" onclick="fecharMenu()"></div>
+    <input type="hidden" id="fk_usuario" value="">
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/pt.js"></script>
+
+    <script>
+        const API_BASE = 'http://localhost:3000/api';
+        let salaSelecionadaData = null;
+
+        // --- 1. CONFIGURAÇÃO INICIAL (AUTH & CALENDÁRIO) ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // A. Verifica Login e Preenche Sidebar/Header
+            const usuarioNome = localStorage.getItem('usuario_nome');
+            const usuarioTipo = localStorage.getItem('usuario_tipo');
+            const usuarioId = localStorage.getItem('usuario_id');
+            // --- LÓGICA DE REDIRECIONAMENTO INTELIGENTE ---
+            let urlDashboard = 'prof-portal.html'; // Padrão (Professor)
+
+            if (usuarioTipo === 'ADMIN') {
+                urlDashboard = 'portal_admin.html'; // Nome do arquivo do Admin
+            }
+            // Atualiza os links na tela
+            const linkSidebar = document.getElementById('link-dashboard-sidebar');
+            const linkModal = document.getElementById('link-dashboard-modal');
+
+            if (linkSidebar) linkSidebar.href = urlDashboard;
+            if (linkModal) linkModal.href = urlDashboard;
+            if (!usuarioId) {
+                alert("Sessão expirada. Faça login novamente.");
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Preenche o input oculto para a reserva funcionar
+            document.getElementById('fk_usuario').value = usuarioId;
+            
+            // Infos do Header
+            document.getElementById('user-name-display').innerText = usuarioNome;
+            document.getElementById('user-type-display').innerText = usuarioTipo;
+            document.getElementById('user-avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(usuarioNome)}&background=0D6EFD&color=fff`;
+
+            if (usuarioTipo === 'ADMIN') document.getElementById('menu-admin').style.display = 'block';
+
+            // B. Inicializa Flatpickr
+            flatpickr("#data_reserva", {
+                locale: "pt",
+                altInput: true,
+                altFormat: "d/m/Y",
+                dateFormat: "Y-m-d",
+                minDate: "today",
+                maxDate: new Date().fp_incr(14),
+                defaultDate: "today",
+                disableMobile: "true"
+            });
+        });
+
+        // --- 2. LÓGICA DE RESERVA ---
+        const mapaTurnos = { 1: "MANHÃ (09:00 - 12:00)", 2: "TARDE (13:00 - 18:00)", 3: "NOITE (19:00 - 22:00)" };
+        const iconesTurnos = {
+            1: `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#e67e22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="M20 12h2"/><path d="m19.07 4.93-1.41 1.41"/><path d="M12 17a5 5 0 0 0 5-5H7a5 5 0 0 0 5 5Z"/><path d="M2 12h2"/><path d="M22 22H2"/></svg>`,
+            2: `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f39c12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2"/><path d="M12 21v2"/><path d="M4.22 4.22l1.42 1.42"/><path d="M18.36 18.36l1.42 1.42"/><path d="M1 12h2"/><path d="M21 12h2"/><path d="M4.22 19.78l1.42-1.42"/><path d="M18.36 5.64l1.42-1.42"/></svg>`,
+            3: `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2c3e50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`
+        };
+
+        async function buscarSalas() {
+            const dataInput = document.getElementById("data_reserva").value;
+            const horarioFiltro = document.getElementById("horario").value;
+            const areaPrincipal = document.getElementById("area-salas-dinamica");
+            const loading = document.getElementById("loading");
+            const msgSemSalas = document.getElementById("msg-sem-salas");
+
+            areaPrincipal.innerHTML = "";
+            msgSemSalas.style.display = "none";
+            document.getElementById("btn-prosseguir").disabled = true;
+            document.getElementById("txt-selecao").innerText = "Nenhuma seleção";
+            salaSelecionadaData = null;
+
+            if (!dataInput) { alert("Selecione a data primeiro."); return; }
+
+            loading.style.display = "block";
+
+            try {
+                const [resSalas, resReservas] = await Promise.all([
+                    fetch(`${API_BASE}/sala/findAll`),
+                    fetch(`${API_BASE}/reserva/findAll`)
+                ]);
+                const jsonSalas = await resSalas.json();
+                const jsonReservas = await resReservas.json();
+                loading.style.display = "none";
+
+                if (!jsonSalas.sucesso || !jsonSalas.data) {
+                    msgSemSalas.innerText = "Erro ao buscar salas.";
+                    msgSemSalas.style.display = "block";
+                    return;
+                }
+
+                const reservasDoDia = (jsonReservas.data || []).filter(r => {
+                    const dataDb = r.data_reserva.toString().substring(0, 10);
+                    return dataDb === dataInput && r.status === 'CONFIRMADA';
+                });
+
+                let salasVisiveis = 0;
+                jsonSalas.data.forEach(sala => {
+                    if (sala.status !== 'DISPONIVEL') return;
+                    salasVisiveis++;
+
+                    const divBloco = document.createElement('div');
+                    divBloco.className = 'bloco-sala';
+                    divBloco.innerHTML = `<h3 class="titulo-sala">${sala.nome}</h3>`;
+
+                    const divGrupo = document.createElement('div');
+                    divGrupo.className = 'grupo-turnos';
+                    const turnosParaMostrar = (horarioFiltro === "0") ? [1, 2, 3] : [parseInt(horarioFiltro)];
+
+                    turnosParaMostrar.forEach(idTurno => {
+                        const card = document.createElement('div');
+                        const estaOcupada = reservasDoDia.some(r => r.fk_sala === sala.id_sala && r.fk_horario === idTurno);
+                        
+                        if (estaOcupada) {
+                            card.className = 'sala-card ocupada';
+                            card.innerHTML = `<div class="info-sala"><span class="nome-turno">OCUPADO</span><span class="cap-sala">${mapaTurnos[idTurno]}</span></div><div class="icone-sala">${iconesTurnos[idTurno]}</div>`;
+                        } else {
+                            card.className = 'sala-card';
+                            card.onclick = () => selecionarSala(card, {fk_sala: sala.id_sala, fk_horario: idTurno, nomeSala: sala.nome, nomeTurno: mapaTurnos[idTurno]});
+                            card.innerHTML = `<div class="info-sala"><span class="nome-turno">${mapaTurnos[idTurno]}</span><span class="cap-sala">Cap: ${sala.capacidade}</span></div><div class="icone-sala">${iconesTurnos[idTurno]}</div>`;
+                        }
+                        divGrupo.appendChild(card);
+                    });
+                    divBloco.appendChild(divGrupo);
+                    areaPrincipal.appendChild(divBloco);
+                });
+
+                if(salasVisiveis === 0) {
+                    msgSemSalas.innerText = "Nenhuma sala disponível encontrada.";
+                    msgSemSalas.style.display = "block";
+                }
+            } catch (erro) {
+                loading.style.display = "none";
+                console.error(erro);
+                msgSemSalas.innerText = "Erro ao conectar com servidor.";
+                msgSemSalas.style.display = "block";
+            }
+        }
+
+        function selecionarSala(elementoHtml, dados) {
+            document.querySelectorAll('.sala-card').forEach(c => c.classList.remove('selecionada'));
+            elementoHtml.classList.add('selecionada');
+            salaSelecionadaData = dados;
+            document.getElementById("txt-selecao").innerText = `${dados.nomeSala} - ${dados.nomeTurno}`;
+            document.getElementById("btn-prosseguir").disabled = false;
+        }
+
+        // --- 3. MODAL E ENVIO ---
+        function abrirModalConfirmacao() {
+            if (!salaSelecionadaData) return;
+            
+            document.getElementById('step-formulario').classList.remove('d-none');
+            document.getElementById('step-sucesso').classList.add('d-none');
+            document.getElementById('modal-footer-btns').classList.remove('d-none');
+            document.getElementById('modal-footer-sucesso').classList.add('d-none');
+            document.getElementById('btn-close-x').style.display = 'block';
+            document.getElementById('msg-erro-modal').style.display = 'none';
+            document.getElementById('modal-motivo').classList.remove('is-invalid');
+            document.getElementById('modal-motivo').value = "";
+            document.getElementById('btn-finalizar').disabled = false;
+            document.getElementById('btn-finalizar').innerText = "Confirmar";
+
+            const data = document.getElementById("data_reserva").value;
+            document.getElementById('resumo-sala').innerText = salaSelecionadaData.nomeSala;
+            document.getElementById('resumo-turno').innerText = salaSelecionadaData.nomeTurno;
+            document.getElementById('resumo-data').innerText = data.split('-').reverse().join('/');
+
+            const modal = new bootstrap.Modal(document.getElementById('modalConfirmacao'));
+            modal.show();
+        }
+
+        async function finalizarReserva() {
+            const btn = document.getElementById('btn-finalizar');
+            const msgErro = document.getElementById('msg-erro-modal');
+            const motivoInput = document.getElementById('modal-motivo');
+
+            if (!motivoInput.value.trim()) {
+                motivoInput.classList.add('is-invalid');
+                return;
+            } else {
+                motivoInput.classList.remove('is-invalid');
+            }
+            
+            btn.disabled = true;
+            btn.innerText = "Salvando...";
+            msgErro.style.display = 'none';
+
+            const payload = {
+                fk_usuario: document.getElementById('fk_usuario').value,
+                fk_sala: salaSelecionadaData.fk_sala,
+                fk_horario: salaSelecionadaData.fk_horario,
+                data_reserva: document.getElementById("data_reserva").value,
+                motivo: motivoInput.value
+            };
+
+            try {
+                const res = await fetch(`${API_BASE}/reserva/save`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+                const json = await res.json();
+
+                if (res.ok) {
+                    document.getElementById('step-formulario').classList.add('d-none');
+                    document.getElementById('id-reserva-final').innerText = json.data.id_reserva;
+                    document.getElementById('step-sucesso').classList.remove('d-none');
+                    document.getElementById('modal-footer-btns').classList.add('d-none');
+                    document.getElementById('modal-footer-sucesso').classList.remove('d-none');
+                    document.getElementById('btn-close-x').style.display = 'none';
+                } else {
+                    let txt = json.erro || "Erro desconhecido";
+                    msgErro.innerText = txt;
+                    msgErro.style.display = 'block';
+                    btn.disabled = false;
+                    btn.innerText = "Confirmar";
+                }
+            } catch (e) {
+                msgErro.innerText = "Erro de conexão.";
+                msgErro.style.display = 'block';
+                btn.disabled = false;
+                btn.innerText = "Confirmar";
+            }
+        }
+
+        // --- LÓGICA DO MENU MOBILE ---
+        const wrapper = document.getElementById("wrapper");
+        const overlay = document.getElementById("overlay");
+
+        // Botão de Abrir (Hamburger)
+        document.getElementById("menu-toggle").onclick = function (e) {
+        e.stopPropagation(); // Evita conflitos de clique
+        wrapper.classList.toggle("toggled");
+
+        // Controla visibilidade do Overlay manual (opcional, pois o CSS já faz, 
+        // mas ajuda a garantir consistência)
+        if (wrapper.classList.contains("toggled")) {
+        overlay.style.display = "block";
+        } else {
+        overlay.style.display = "none";
+        }
+        };
+
+        // Função para fechar (chamada ao clicar no overlay)
+        function fecharMenu() {
+        wrapper.classList.remove("toggled");
+        overlay.style.display = "none";
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

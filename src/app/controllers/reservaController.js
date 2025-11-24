@@ -13,15 +13,15 @@ router.post('/save', (req, res) => {
             if (err.code === 'ER_DUP_ENTRY') {
                 // Verifica se o erro veio da restrição do PROFESSOR
                 if (err.sqlMessage && err.sqlMessage.includes('unq_professor_turno')) {
-                    return res.status(409).json({ 
-                        sucesso: false, 
-                        erro: 'O professor não pode dar duas aulas ao mesmo tempo.' 
+                    return res.status(409).json({
+                        sucesso: false,
+                        erro: 'O professor não pode dar duas aulas ao mesmo tempo.'
                     });
                 }
                 // Caso contrário, é erro de SALA ocupada
-                return res.status(409).json({ 
-                    sucesso: false, 
-                    erro: 'Esta sala já está reservada para este horário.' 
+                return res.status(409).json({
+                    sucesso: false,
+                    erro: 'Esta sala já está reservada para este horário.'
                 });
             }
 
@@ -64,14 +64,23 @@ router.get('/findAll', (req, res) => {
 });
 
 
-router.patch('/parcialUpdate/:id', (req, res) => {
-    reservaService.atualizarParcial(req.params.id, req.body, (err, result) => {
+router.patch('/updateParcial/:id', (req, res) => {
+    const id = req.params.id;
+    const campos = req.body;
+
+    reservaService.atualizarParcial(id, campos, (err, resultado) => {
         if (err) {
-            console.erro(err);
-            return res.status(err.status || 500).json({ sucesso: false, erro: err.erro || 'Erro ao atualizar a reserva' });
+            return res.status(err.status || 500).json({
+                sucesso: false,
+                erro: err.erro || 'Erro ao atualizar reserva'
+            });
         }
-        if (result.affectedRows === 0) return res.status(404).json({ sucesso: false, erro: 'Reserva não encontrado' });
-        res.json({ sucesso: true, data: { updated: result.affectedRows } });
+
+        res.json({
+            sucesso: true,
+            mensagem: 'Reserva atualizada com sucesso',
+            data: resultado
+        });
     });
 });
 
