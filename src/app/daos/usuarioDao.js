@@ -59,7 +59,7 @@ function atualizarParcial(id, camposSQL, valores, callback) {
     );
 }
 
-function desativarSala(id, callback) {
+function desativarUsuario(id, callback) {
     const queryDesativar = 'UPDATE usuario SET status_usuario = FALSE WHERE id_usuario = ?';
     db.query(
         queryDesativar,
@@ -75,6 +75,10 @@ module.exports = {
     buscarPorId,
     atualizarUsuario,
     atualizarParcial,
+<<<<<<< Updated upstream
     desativarSala,
     buscarPorEmail
+=======
+    desativarUsuario
+>>>>>>> Stashed changes
 };

@@ -67,7 +67,13 @@ function atualizarParcial(id, campos, callback) {
 
 // DELETE (desativar)
 function desativar(id, callback) {
-    usuarioDAO.desativar(id, callback);
+    usuarioDAO.desativarUsuario(id, (err, result) => {
+        if (err) {
+            console.error('Erro no service desativar:', err);
+            return callback({ status: 500, erro: 'Erro interno ao desativar usuário' });
+        }
+        callback(null, result);
+    });
 }
 
 module.exports = {
