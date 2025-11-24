@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await carregarTodosUsuarios();
 });
 
+// =================== UTILIDADES ===================
 function toggleLoading(show) {
     document.getElementById('loading-users').style.display = show ? 'block' : 'none';
     document.getElementById('users-container').style.display = show ? 'none' : 'block';
@@ -96,6 +97,7 @@ function carregarUsuariosAtivos() {
     exibirUsuarios(usuariosAtivos, 'Usuários Ativos');
 }
 
+
 function carregarUsuariosInativos() {
     if (!todosUsuarios.length) return mostrarMensagem('Carregue os usuários primeiro', 'warning');
 
@@ -106,7 +108,6 @@ function carregarUsuariosInativos() {
     exibirUsuarios(usuariosInativos, 'Usuários Inativos');
 }
 // ================= PESQUISA =================
-
 async function pesquisarPorEmail() {
     const email = document.getElementById('search-email').value.trim();
     if (!email) return mostrarMensagem('Digite um e-mail.', 'warning');
@@ -132,15 +133,18 @@ function limparPesquisa() {
     document.getElementById('search-email').value = '';
     carregarTodosUsuarios();
 }
+
 // ================= CARDS =================
 function exibirUsuarios(lista, titulo) {
     const div = document.getElementById('users-container');
     document.getElementById('page-title').textContent = titulo;
     document.getElementById('list-title').textContent = titulo;
+
     if (!lista.length) {
         div.innerHTML = `<p class="text-center text-muted py-4">Nenhum usuário encontrado</p>`;
         return;
     }
+
     div.innerHTML = lista.map(u => criarCardUsuario(u)).join('');
 }
 
@@ -148,6 +152,7 @@ function criarCardUsuario(usuario) {
     const ativo = usuario.status_usuario;
     const status = ativo ? "Ativo" : "Inativo";
     const badge = ativo ? "status-active" : "status-inactive";
+
     return `
         <div id="user-${usuario.id_usuario}" class="user-card">
             <div class="user-view">
@@ -168,6 +173,7 @@ function criarCardUsuario(usuario) {
         </div>
     `;
 }
+
 // ================= EDIÇÃO =================
 function iniciarEdicao(id) {
     const u = todosUsuarios.find(x => x.id_usuario === id);
