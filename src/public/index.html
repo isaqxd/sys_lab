@@ -1,13 +1,114 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Index</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>Login - SysLab</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f0f2f5;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .card-login {
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            background: #fff;
+        }
+        .btn-login {
+            background-color: #0d6efd;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-    <h1>Projeto CRUD</h1>
-    <h2>Bem Vindo</h2>
+
+    <div class="card card-login">
+        <div class="text-center mb-4">
+            <img src="img/sys_lab_logo.svg" alt="SysLab Logo" width="300">
+            <p class="text-muted">Faça login para reservar salas</p>
+        </div>
+
+        <form id="formLogin">
+            <div class="mb-3">
+                <label for="email" class="form-label fw-bold">Email</label>
+                <input type="email" class="form-control" id="email" placeholder="ex: prof@teste.com" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="senha" class="form-label fw-bold">Senha</label>
+                <input type="password" class="form-control" id="senha" placeholder="******" required>
+            </div>
+
+            <div id="msg-erro" class="alert alert-danger text-center p-2" style="display: none;"></div>
+
+            <button type="submit" class="btn btn-primary w-100 btn-login py-2" id="btn-entrar">
+                ENTRAR
+            </button>
+        </form>
+    </div>
+
+    <script>
+
+        const API_BASE = 'http://localhost:3000/api';
+
+        document.getElementById('formLogin').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('senha').value;
+            const msgErro = document.getElementById('msg-erro');
+            const btn = document.getElementById('btn-entrar');
+
+            // Reset visual
+            msgErro.style.display = 'none';
+            btn.disabled = true;
+            btn.innerText = "Verificando...";
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, senha })
+                });
+
+                const resultado = await response.json();
+
+                if (response.ok) {
+                    // --- O PULO DO GATO ---
+                    // Salvamos os dados do usuário no navegador
+                    localStorage.setItem('usuario_id', resultado.data.id);
+                    localStorage.setItem('usuario_nome', resultado.data.nome);
+                    localStorage.setItem('usuario_tipo', resultado.data.tipo);
+
+                    // Redireciona baseado no tipo (opcional, ou joga direto pra reserva)
+                    if(resultado.data.tipo === 'ADMIN') {
+                        // window.location.href = '/admin-dashboard.html'; (Se você fizer essa tela depois)
+                        window.location.href = '/portal_admin.html'; 
+                    } else {
+                        window.location.href = '/portal_professor.html'; // Nome do seu arquivo de reserva
+                    }
+
+                } else {
+                    msgErro.innerText = resultado.erro || "Falha no login";
+                    msgErro.style.display = 'block';
+                }
+
+            } catch (error) {
+                console.error(error);
+                msgErro.innerText = "Erro de conexão com o servidor.";
+                msgErro.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "ENTRAR";
+            }
+        });
+    </script>
 </body>
 </html>
