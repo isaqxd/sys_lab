@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerenciamento de Recursos</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 16px;
+      background: #f4f4f4 !important;
+      /* cinza claro */
+    }
+
+    h1,
+    h2 {
+      margin-bottom: 8px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    input[type="text"],
+    select {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+    }
+
+    button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      background: #1976d2;
+      color: #fff;
+      font-weight: bold;
+    }
+
+    button:disabled {
+      opacity: 0.7;
+      cursor: default;
+    }
+
+    .sala {
+      border-bottom: 1px solid #ddd;
+      padding: 8px 0;
+    }
+
+    .sala h3 {
+      margin: 0 0 4px 0;
+    }
+
+    .recursos-list {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .badge-status {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+      background: #eee;
+      margin-left: 8px;
+    }
+
+    .msg {
+      margin-top: 8px;
+      font-size: 14px;
+    }
+
+    .msg.error {
+      color: #b00020;
+    }
+
+    .msg.success {
+      color: #2e7d32;
+    }
+
+    .link-voltar {
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+
+    .btn-remove {
+      margin-left: 8px;
+      padding: 2px 8px;
+      font-size: 12px;
+      background: #d32f2f;
+      color: #fff;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-remove:hover {
+      background: #b71c1c;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <a href="index.html" class="link-voltar">← Voltar para o início</a>
+    <h1>Gerenciamento de Recursos</h1>
+
+    <div class="card">
+      <h2>Cadastrar novo recurso</h2>
+      <form id="formRecurso">
+        <div class="form-group">
+          <label for="nomeRecurso">Nome do recurso</label>
+          <input type="text" id="nomeRecurso" name="nomeRecurso" placeholder="Ex.: Projetor, Computador, Quadro branco"
+            required />
+        </div>
+        <button type="submit">Salvar recurso</button>
+        <div id="msgRecurso" class="msg"></div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Vincular recurso a uma sala</h2>
+      <form id="formVinculo">
+        <div class="form-group">
+          <label for="selectSala">Sala</label>
+          <select id="selectSala" required>
+            <option value="">Selecione uma sala</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="selectRecurso">Recurso</label>
+          <select id="selectRecurso" required>
+            <option value="">Selecione um recurso</option>
+          </select>
+        </div>
+
+        <button type="submit">Vincular</button>
+        <div id="msgVinculo" class="msg"></div>
+      </form>
+
+      <h2>Gerenciar Salas</h2>
+
+      <!-- Filtros -->
+      <div style="margin-bottom: 16px;">
+        <label>Filtrar por Status:</label>
+        <button onclick="carregarTodasSalas()">Todas</button>
+        <button onclick="carregarSalasAtivas()">Ativas</button>
+        <button onclick="carregarSalasInativas()">Inativas</button>
+      </div>
+
+      <div id="listaGerenciamentoSalas">
+        Carregando salas...
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Salas e seus recursos</h2>
+      <div id="listaSalas">
+        Carregando salas...
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = '/api';
+
+    const formRecurso = document.getElementById('formRecurso');
+    const msgRecurso = document.getElementById('msgRecurso');
+    const formVinculo = document.getElementById('formVinculo');
+    const msgVinculo = document.getElementById('msgVinculo');
+    const selectSala = document.getElementById('selectSala');
+    const selectRecurso = document.getElementById('selectRecurso');
+    const listaSalasDiv = document.getElementById('listaSalas');
+
+    function showMessage(element, text, type) {
+      element.textContent = text;
+      element.className = 'msg ' + (type || '');
+    }
+
+    async function carregarSalasEDropdown() {
+      try {
+        const resp = await fetch(`${API_BASE}/sala/findAll`);
+        const json = await resp.json();
+        if (!json.sucesso) throw new Error(json.erro || 'Erro ao carregar salas');
+
+        selectSala.innerHTML = '<option value="">Selecione uma sala</option>';
+
+        json.data.forEach(sala => {
+          const opt = document.createElement('option');
+          opt.value = sala.id_sala;
+          opt.textContent = `${sala.nome} (capacidade: ${sala.capacidade})`;
+          selectSala.appendChild(opt);
+        });
+      } catch (e) {
+        console.error(e);
+        showMessage(msgVinculo, 'Erro ao carregar salas para o vínculo.', 'error');
+      }
+    }
+
+    async function carregarRecursosEDropdown() {
+      try {
+        const resp = await fetch(`${API_BASE}/recurso/findAll`);
+        const json = await resp.json();
+        if (!json.sucesso) throw new Error(json.erro || 'Erro ao carregar recursos');
+
+        selectRecurso.innerHTML = '<option value="">Selecione um recurso</option>';
+
+        json.data.forEach(rec => {
+          const opt = document.createElement('option');
+          opt.value = rec.id_recurso;
+          opt.textContent = rec.nome;
+          selectRecurso.appendChild(opt);
+        });
+      } catch (e) {
+        console.error(e);
+        showMessage(msgVinculo, 'Erro ao carregar recursos para o vínculo.', 'error');
+      }
+    }
+
+    formRecurso.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const nome = document.getElementById('nomeRecurso').value.trim();
+      if (!nome) {
+        showMessage(msgRecurso, 'Informe um nome de recurso.', 'error');
+        return;
+      }
+
+      try {
+        const resp = await fetch(`${API_BASE}/recurso/save`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nome })
+        });
+
+        const json = await resp.json();
+
+        if (!resp.ok || !json.sucesso) {
+          throw new Error(json.erro || 'Erro ao salvar recurso');
+        }
+
+        showMessage(msgRecurso, 'Recurso salvo com sucesso!', 'success');
+        formRecurso.reset();
+
+        await carregarRecursosEDropdown();
+        await carregarSalasComRecursos();
+      } catch (e) {
+        console.error(e);
+        showMessage(msgRecurso, e.message, 'error');
+      }
+    });
+
+    formVinculo.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fk_sala = selectSala.value;
+      const fk_recurso = selectRecurso.value;
+
+      if (!fk_sala || !fk_recurso) {
+        showMessage(msgVinculo, 'Selecione sala e recurso.', 'error');
+        return;
+      }
+
+      try {
+        const resp = await fetch(`${API_BASE}/sala-recurso/save`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fk_sala: Number(fk_sala),
+            fk_recurso: Number(fk_recurso)
+          })
+        });
+
+        const json = await resp.json();
+
+        if (resp.status === 409) {
+          throw new Error(json.erro || 'Esse recurso já está vinculado a essa sala.');
+        }
+
+        if (!resp.ok || !json.sucesso) {
+          throw new Error(json.erro || 'Erro ao vincular recurso');
+        }
+
+        showMessage(msgVinculo, 'Recurso vinculado à sala com sucesso!', 'success');
+        await carregarSalasComRecursos();
+      } catch (e) {
+        console.error(e);
+        showMessage(msgVinculo, e.message, 'error');
+      }
+    });
+
+    // NOVO: remover vínculo sala x recurso
+    async function removerRecursoSala(fk_sala, fk_recurso) {
+      try {
+        const resp = await fetch(`${API_BASE}/sala-recurso/remove`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fk_sala: Number(fk_sala),
+            fk_recurso: Number(fk_recurso)
+          })
+        });
+
+        const json = await resp.json();
+
+        if (!resp.ok || !json.sucesso) {
+          throw new Error(json.erro || 'Erro ao remover vínculo');
+        }
+
+        showMessage(msgVinculo, 'Recurso removido da sala com sucesso!', 'success');
+        await carregarSalasComRecursos();
+      } catch (e) {
+        console.error(e);
+        showMessage(msgVinculo, e.message, 'error');
+      }
+    }
+
+    async function carregarSalasComRecursos() {
+      listaSalasDiv.textContent = 'Carregando salas e recursos...';
+
+      try {
+        const respSalas = await fetch(`${API_BASE}/sala/findAll`);
+        const jsonSalas = await respSalas.json();
+        if (!jsonSalas.sucesso) throw new Error(jsonSalas.erro || 'Erro ao carregar salas');
+
+        listaSalasDiv.innerHTML = '';
+
+        for (const sala of jsonSalas.data) {
+          const salaDiv = document.createElement('div');
+          salaDiv.className = 'sala';
+
+          const titulo = document.createElement('h3');
+          titulo.textContent = sala.nome;
+
+          const badge = document.createElement('span');
+          badge.className = 'badge-status';
+          badge.textContent = sala.status || 'DESCONHECIDO';
+
+          titulo.appendChild(badge);
+          salaDiv.appendChild(titulo);
+
+          try {
+            const respRecursos = await fetch(`${API_BASE}/sala-recurso/findById/${sala.id_sala}`);
+            const jsonRecursos = await respRecursos.json();
+
+            const ul = document.createElement('ul');
+            ul.className = 'recursos-list';
+
+            if (!respRecursos.ok || !jsonRecursos.sucesso || !jsonRecursos.data || jsonRecursos.data.length === 0) {
+              const li = document.createElement('li');
+              li.textContent = 'Sem recursos vinculados.';
+              ul.appendChild(li);
+            } else {
+              jsonRecursos.data.forEach(rec => {
+                const li = document.createElement('li');
+                li.textContent = rec.nome;
+
+                // Botão de remover vínculo
+                const btnRemover = document.createElement('button');
+                btnRemover.textContent = 'Remover';
+                btnRemover.className = 'btn-remove';
+                btnRemover.addEventListener('click', async () => {
+                  const confirmar = confirm(`Remover o recurso "${rec.nome}" da sala "${sala.nome}"?`);
+                  if (!confirmar) return;
+                  await removerRecursoSala(sala.id_sala, rec.id_recurso);
+                });
+
+                li.appendChild(btnRemover);
+                ul.appendChild(li);
+              });
+            }
+
+            salaDiv.appendChild(ul);
+          } catch (e) {
+            console.error(e);
+            const erro = document.createElement('p');
+            erro.className = 'msg error';
+            erro.textContent = 'Erro ao carregar recursos desta sala.';
+            salaDiv.appendChild(erro);
+          }
+
+          listaSalasDiv.appendChild(salaDiv);
+        }
+
+        if (jsonSalas.data.length === 0) {
+          listaSalasDiv.textContent = 'Nenhuma sala cadastrada.';
+        }
+      } catch (e) {
+        console.error(e);
+        listaSalasDiv.textContent = 'Erro ao carregar salas.';
+      }
+    }
+
+    (async function init() {
+      await Promise.all([
+        carregarSalasEDropdown(),
+        carregarRecursosEDropdown(),
+        carregarTodasSalas() // Adicionado
+      ]);
+      await carregarSalasComRecursos();
+    })();
+
+
+    // Variável global para armazenar todas as salas
+    let todasSalas = [];
+
+    // ========== FUNÇÕES DE GERENCIAMENTO DE SALAS ==========
+
+    // Carregar todas as salas (ativas e inativas)
+    async function carregarTodasSalas() {
+      const listaDiv = document.getElementById('listaGerenciamentoSalas');
+      listaDiv.textContent = 'Carregando salas...';
+
+      try {
+        const response = await fetch(`${API_BASE}/sala/findAll`);
+        const result = await response.json();
+
+        if (response.ok && result.sucesso) {
+          todasSalas = result.data;
+          exibirSalasParaGerenciamento(todasSalas, 'Todas as Salas');
+        } else {
+          throw new Error(result.erro || 'Erro ao carregar salas');
+        }
+      } catch (error) {
+        console.error('Erro:', error);
+        listaDiv.textContent = 'Erro ao carregar salas';
+      }
+    }
+
+    // Carregar apenas salas ativas
+    async function carregarSalasAtivas() {
+      if (todasSalas.length === 0) {
+        await carregarTodasSalas();
+      }
+
+      const salasAtivas = todasSalas.filter(sala =>
+        sala.status === 'DISPONIVEL' || sala.status === 'OCUPADA'
+      );
+      exibirSalasParaGerenciamento(salasAtivas, 'Salas Ativas');
+    }
+
+    // Carregar apenas salas inativas
+    async function carregarSalasInativas() {
+      if (todasSalas.length === 0) {
+        await carregarTodasSalas();
+      }
+
+      const salasInativas = todasSalas.filter(sala =>
+        sala.status === 'DESATIVADA' || sala.status === 'MANUTENCAO'
+      );
+      exibirSalasParaGerenciamento(salasInativas, 'Salas Inativas');
+    }
+
+    // Exibir salas para gerenciamento
+    function exibirSalasParaGerenciamento(salas, titulo = 'Salas') {
+      const listaDiv = document.getElementById('listaGerenciamentoSalas');
+
+      if (salas.length === 0) {
+        listaDiv.innerHTML = '<p>Nenhuma sala encontrada</p>';
+        return;
+      }
+
+      listaDiv.innerHTML = `<h3>${titulo}</h3>`;
+
+      salas.forEach(sala => {
+        const salaDiv = document.createElement('div');
+        salaDiv.id = `sala-${sala.id_sala}`;
+        salaDiv.className = 'sala';
+        salaDiv.style.border = '1px solid #ddd';
+        salaDiv.style.padding = '12px';
+        salaDiv.style.margin = '8px 0';
+        salaDiv.style.borderRadius = '4px';
+
+        const statusStyle = (sala.status === 'DISPONIVEL' || sala.status === 'OCUPADA') ?
+          'color: green;' : 'color: red;';
+
+        salaDiv.innerHTML = `
+      <div class="sala-view">
+        <div><strong>Nome:</strong> <span id="sala-nome-${sala.id_sala}">${sala.nome}</span></div>
+        <div><strong>Capacidade:</strong> <span id="sala-capacidade-${sala.id_sala}">${sala.capacidade}</span></div>
+        <div><strong>Status:</strong> <span id="sala-status-${sala.id_sala}" style="${statusStyle}">${sala.status}</span></div>
+      </div>
+      <div style="margin-top: 10px;">
+        <button onclick="iniciarEdicaoSala(${sala.id_sala})">Editar</button>
+        <button onclick="${(sala.status === 'DISPONIVEL' || sala.status === 'OCUPADA') ? 'desativarSala' : 'reativarSala'}(${sala.id_sala})">
+          ${(sala.status === 'DISPONIVEL' || sala.status === 'OCUPADA') ? 'Desativar' : 'Reativar'}
+        </button>
+      </div>
+    `;
+
+        listaDiv.appendChild(salaDiv);
+      });
+    }
+
+    // Iniciar edição de sala
+    function iniciarEdicaoSala(salaId) {
+      const salaDiv = document.getElementById(`sala-${salaId}`);
+      const nomeAtual = document.getElementById(`sala-nome-${salaId}`).textContent;
+      const capacidadeAtual = document.getElementById(`sala-capacidade-${salaId}`).textContent;
+      const statusAtual = document.getElementById(`sala-status-${salaId}`).textContent;
+
+      salaDiv.innerHTML = `
+    <form id="form-editar-sala-${salaId}" onsubmit="salvarEdicaoSala(event, ${salaId})">
+      <div class="form-group">
+        <label for="edit-sala-nome-${salaId}">Nome:</label>
+        <input type="text" id="edit-sala-nome-${salaId}" value="${nomeAtual}" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="edit-sala-capacidade-${salaId}">Capacidade:</label>
+        <input type="number" id="edit-sala-capacidade-${salaId}" value="${capacidadeAtual}" min="1" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="edit-sala-status-${salaId}">Status:</label>
+        <select id="edit-sala-status-${salaId}" required>
+          <option value="DISPONIVEL" ${statusAtual === 'DISPONIVEL' ? 'selected' : ''}>Disponível</option>
+          <option value="OCUPADA" ${statusAtual === 'OCUPADA' ? 'selected' : ''}>Ocupada</option>
+          <option value="MANUTENCAO" ${statusAtual === 'MANUTENCAO' ? 'selected' : ''}>Manutenção</option>
+          <option value="DESATIVADA" ${statusAtual === 'DESATIVADA' ? 'selected' : ''}>Desativada</option>
+        </select>
+      </div>
+      
+      <div style="margin-top: 10px;">
+        <button type="submit">Salvar</button>
+        <button type="button" onclick="cancelarEdicaoSala(${salaId})">Cancelar</button>
+      </div>
+    </form>
+  `;
+    }
+
+    // Cancelar edição de sala
+    function cancelarEdicaoSala(salaId) {
+      const sala = todasSalas.find(s => s.id_sala === salaId);
+      if (sala) {
+        atualizarCardSala(salaId, sala);
+      } else {
+        carregarTodasSalas();
+      }
+    }
+
+    // Salvar edição de sala
+    async function salvarEdicaoSala(event, salaId) {
+      event.preventDefault();
+
+      const editData = {
+        nome: document.getElementById(`edit-sala-nome-${salaId}`).value,
+        capacidade: parseInt(document.getElementById(`edit-sala-capacidade-${salaId}`).value),
+        status: document.getElementById(`edit-sala-status-${salaId}`).value
+      };
+
+      try {
+        const response = await fetch(`${API_BASE}/sala/updatePartial/${salaId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(editData)
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.sucesso) {
+          showMessage(msgVinculo, 'Sala atualizada com sucesso!', 'success');
+          carregarTodasSalas(); // Recarrega a lista
+          await carregarSalasEDropdown(); // Atualiza o dropdown de vínculos
+        } else {
+          const errMsg = result.erro || result.message || 'Erro ao atualizar sala';
+          showMessage(msgVinculo, `Erro: ${errMsg}`, 'error');
+        }
+      } catch (error) {
+        console.error('Erro:', error);
+        showMessage(msgVinculo, 'Erro ao atualizar sala', 'error');
+      }
+    }
+
+    // Desativar sala
+    async function desativarSala(salaId) {
+      if (!confirm('Tem certeza que deseja desativar esta sala?')) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/sala/updatePartial/${salaId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            status: 'DESATIVADA'
+          })
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.sucesso) {
+          showMessage(msgVinculo, 'Sala desativada com sucesso!', 'success');
+          carregarTodasSalas();
+          await carregarSalasEDropdown();
+        } else {
+          const errMsg = result.erro || result.message || 'Erro ao desativar sala';
+          showMessage(msgVinculo, `Erro: ${errMsg}`, 'error');
+        }
+      } catch (error) {
+        console.error('Erro:', error);
+        showMessage(msgVinculo, 'Erro ao desativar sala', 'error');
+      }
+    }
+
+    // Reativar sala
+    async function reativarSala(salaId) {
+      if (!confirm('Tem certeza que deseja reativar esta sala?')) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/sala/updatePartial/${salaId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            status: 'DISPONIVEL'
+          })
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.sucesso) {
+          showMessage(msgVinculo, 'Sala reativada com sucesso!', 'success');
+          carregarTodasSalas();
+          await carregarSalasEDropdown();
+        } else {
+          const errMsg = result.erro || result.message || 'Erro ao reativar sala';
+          showMessage(msgVinculo, `Erro: ${errMsg}`, 'error');
+        }
+      } catch (error) {
+        console.error('Erro:', error);
+        showMessage(msgVinculo, 'Erro ao reativar sala', 'error');
+      }
+    }
+
+    // Atualizar card da sala
+    function atualizarCardSala(salaId, sala) {
+      const salaDiv = document.getElementById(`sala-${salaId}`);
+      const statusStyle = (sala.status === 'DISPONIVEL' || sala.status === 'OCUPADA') ?
+        'color: green;' : 'color: red;';
+
+      salaDiv.innerHTML = `
+    <div class="sala-view">
+      <div><strong>Nome:</strong> <span id="sala-nome-${sala.id_sala}">${sala.nome}</span></div>
+      <div><strong>Capacidade:</strong> <span id="sala-capacidade-${sala.id_sala}">${sala.capacidade}</span></div>
+      <div><strong>Status:</strong> <span id="sala-status-${sala.id_sala}" style="${statusStyle}">${sala.status}</span></div>
+    </div>
+    <div style="margin-top: 10px;">
+      <button onclick="iniciarEdicaoSala(${sala.id_sala})">Editar</button>
+      <button onclick="${(sala.status === 'DISPONIVEL' || sala.status === 'OCUPADA') ? 'desativarSala' : 'reativarSala'}(${sala.id_sala})">
+        ${(sala.status === 'DISPONIVEL' || sala.status === 'OCUPADA') ? 'Desativar' : 'Reativar'}
+      </button>
+    </div>
+  `;
+    }
+
+    // Inicializar gerenciamento de salas
+    (async function initGerenciamentoSalas() {
+      await carregarTodasSalas();
+    })();
+  </script>
+</body>
+
+</html>
