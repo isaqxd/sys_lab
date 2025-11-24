@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerenciamento de Recursos</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 16px;
+      background: #f4f4f4 !important; /* cinza claro */
+    }
+
+    h1, h2 {
+      margin-bottom: 8px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    input[type="text"],
+    select {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+    }
+
+    button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      background: #1976d2;
+      color: #fff;
+      font-weight: bold;
+    }
+
+    button:disabled {
+      opacity: 0.7;
+      cursor: default;
+    }
+
+    .sala {
+      border-bottom: 1px solid #ddd;
+      padding: 8px 0;
+    }
+
+    .sala h3 {
+      margin: 0 0 4px 0;
+    }
+
+    .recursos-list {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .badge-status {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+      background: #eee;
+      margin-left: 8px;
+    }
+
+    .msg {
+      margin-top: 8px;
+      font-size: 14px;
+    }
+
+    .msg.error {
+      color: #b00020;
+    }
+
+    .msg.success {
+      color: #2e7d32;
+    }
+
+    .link-voltar {
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+
+    .btn-remove {
+      margin-left: 8px;
+      padding: 2px 8px;
+      font-size: 12px;
+      background: #d32f2f;
+      color: #fff;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-remove:hover {
+      background: #b71c1c;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="index.html" class="link-voltar">← Voltar para o início</a>
+    <h1>Gerenciamento de Recursos</h1>
+
+    <!-- CARD 1: Cadastro de recurso -->
+    <div class="card">
+      <h2>Cadastrar novo recurso</h2>
+      <form id="formRecurso">
+        <div class="form-group">
+          <label for="nomeRecurso">Nome do recurso</label>
+          <input
+            type="text"
+            id="nomeRecurso"
+            name="nomeRecurso"
+            placeholder="Ex.: Projetor, Computador, Quadro branco"
+            required
+          />
+        </div>
+        <button type="submit">Salvar recurso</button>
+        <div id="msgRecurso" class="msg"></div>
+      </form>
+    </div>
+
+    <!-- CARD 2: Vínculo sala x recurso -->
+    <div class="card">
+      <h2>Vincular recurso a uma sala</h2>
+      <form id="formVinculo">
+        <div class="form-group">
+          <label for="selectSala">Sala</label>
+          <select id="selectSala" required>
+            <option value="">Selecione uma sala</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="selectRecurso">Recurso</label>
+          <select id="selectRecurso" required>
+            <option value="">Selecione um recurso</option>
+          </select>
+        </div>
+
+        <button type="submit">Vincular</button>
+        <div id="msgVinculo" class="msg"></div>
+      </form>
+    </div>
+
+    <!-- CARD 3: Listagem de salas com recursos -->
+    <div class="card">
+      <h2>Salas e seus recursos</h2>
+      <div id="listaSalas">
+        Carregando salas...
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = '/api';
+
+    const formRecurso = document.getElementById('formRecurso');
+    const msgRecurso = document.getElementById('msgRecurso');
+    const formVinculo = document.getElementById('formVinculo');
+    const msgVinculo = document.getElementById('msgVinculo');
+    const selectSala = document.getElementById('selectSala');
+    const selectRecurso = document.getElementById('selectRecurso');
+    const listaSalasDiv = document.getElementById('listaSalas');
+
+    function showMessage(element, text, type) {
+      element.textContent = text;
+      element.className = 'msg ' + (type || '');
+    }
+
+    async function carregarSalasEDropdown() {
+      try {
+        const resp = await fetch(`${API_BASE}/sala/findAll`);
+        const json = await resp.json();
+        if (!json.sucesso) throw new Error(json.erro || 'Erro ao carregar salas');
+
+        selectSala.innerHTML = '<option value="">Selecione uma sala</option>';
+
+        json.data.forEach(sala => {
+          const opt = document.createElement('option');
+          opt.value = sala.id_sala;
+          opt.textContent = `${sala.nome} (capacidade: ${sala.capacidade})`;
+          selectSala.appendChild(opt);
+        });
+      } catch (e) {
+        console.error(e);
+        showMessage(msgVinculo, 'Erro ao carregar salas para o vínculo.', 'error');
+      }
+    }
+
+    async function carregarRecursosEDropdown() {
+      try {
+        const resp = await fetch(`${API_BASE}/recurso/findAll`);
+        const json = await resp.json();
+        if (!json.sucesso) throw new Error(json.erro || 'Erro ao carregar recursos');
+
+        selectRecurso.innerHTML = '<option value="">Selecione um recurso</option>';
+
+        json.data.forEach(rec => {
+          const opt = document.createElement('option');
+          opt.value = rec.id_recurso;
+          opt.textContent = rec.nome;
+          selectRecurso.appendChild(opt);
+        });
+      } catch (e) {
+        console.error(e);
+        showMessage(msgVinculo, 'Erro ao carregar recursos para o vínculo.', 'error');
+      }
+    }
+
+    formRecurso.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const nome = document.getElementById('nomeRecurso').value.trim();
+      if (!nome) {
+        showMessage(msgRecurso, 'Informe um nome de recurso.', 'error');
+        return;
+      }
+
+      try {
+        const resp = await fetch(`${API_BASE}/recurso/save`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nome })
+        });
+
+        const json = await resp.json();
+
+        if (!resp.ok || !json.sucesso) {
+          throw new Error(json.erro || 'Erro ao salvar recurso');
+        }
+
+        showMessage(msgRecurso, 'Recurso salvo com sucesso!', 'success');
+        formRecurso.reset();
+
+        await carregarRecursosEDropdown();
+        await carregarSalasComRecursos();
+      } catch (e) {
+        console.error(e);
+        showMessage(msgRecurso, e.message, 'error');
+      }
+    });
+
+    formVinculo.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fk_sala = selectSala.value;
+      const fk_recurso = selectRecurso.value;
+
+      if (!fk_sala || !fk_recurso) {
+        showMessage(msgVinculo, 'Selecione sala e recurso.', 'error');
+        return;
+      }
+
+      try {
+        const resp = await fetch(`${API_BASE}/sala-recurso/save`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fk_sala: Number(fk_sala),
+            fk_recurso: Number(fk_recurso)
+          })
+        });
+
+        const json = await resp.json();
+
+        if (resp.status === 409) {
+          throw new Error(json.erro || 'Esse recurso já está vinculado a essa sala.');
+        }
+
+        if (!resp.ok || !json.sucesso) {
+          throw new Error(json.erro || 'Erro ao vincular recurso');
+        }
+
+        showMessage(msgVinculo, 'Recurso vinculado à sala com sucesso!', 'success');
+        await carregarSalasComRecursos();
+      } catch (e) {
+        console.error(e);
+        showMessage(msgVinculo, e.message, 'error');
+      }
+    });
+
+    // NOVO: remover vínculo sala x recurso
+    async function removerRecursoSala(fk_sala, fk_recurso) {
+      try {
+        const resp = await fetch(`${API_BASE}/sala-recurso/remove`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fk_sala: Number(fk_sala),
+            fk_recurso: Number(fk_recurso)
+          })
+        });
+
+        const json = await resp.json();
+
+        if (!resp.ok || !json.sucesso) {
+          throw new Error(json.erro || 'Erro ao remover vínculo');
+        }
+
+        showMessage(msgVinculo, 'Recurso removido da sala com sucesso!', 'success');
+        await carregarSalasComRecursos();
+      } catch (e) {
+        console.error(e);
+        showMessage(msgVinculo, e.message, 'error');
+      }
+    }
+
+    async function carregarSalasComRecursos() {
+      listaSalasDiv.textContent = 'Carregando salas e recursos...';
+
+      try {
+        const respSalas = await fetch(`${API_BASE}/sala/findAll`);
+        const jsonSalas = await respSalas.json();
+        if (!jsonSalas.sucesso) throw new Error(jsonSalas.erro || 'Erro ao carregar salas');
+
+        listaSalasDiv.innerHTML = '';
+
+        for (const sala of jsonSalas.data) {
+          const salaDiv = document.createElement('div');
+          salaDiv.className = 'sala';
+
+          const titulo = document.createElement('h3');
+          titulo.textContent = sala.nome;
+
+          const badge = document.createElement('span');
+          badge.className = 'badge-status';
+          badge.textContent = sala.status || 'DESCONHECIDO';
+
+          titulo.appendChild(badge);
+          salaDiv.appendChild(titulo);
+
+          try {
+            const respRecursos = await fetch(`${API_BASE}/sala-recurso/findById/${sala.id_sala}`);
+            const jsonRecursos = await respRecursos.json();
+
+            const ul = document.createElement('ul');
+            ul.className = 'recursos-list';
+
+            if (!respRecursos.ok || !jsonRecursos.sucesso || !jsonRecursos.data || jsonRecursos.data.length === 0) {
+              const li = document.createElement('li');
+              li.textContent = 'Sem recursos vinculados.';
+              ul.appendChild(li);
+            } else {
+              jsonRecursos.data.forEach(rec => {
+                const li = document.createElement('li');
+                li.textContent = rec.nome;
+
+                // Botão de remover vínculo
+                const btnRemover = document.createElement('button');
+                btnRemover.textContent = 'Remover';
+                btnRemover.className = 'btn-remove';
+                btnRemover.addEventListener('click', async () => {
+                  const confirmar = confirm(`Remover o recurso "${rec.nome}" da sala "${sala.nome}"?`);
+                  if (!confirmar) return;
+                  await removerRecursoSala(sala.id_sala, rec.id_recurso);
+                });
+
+                li.appendChild(btnRemover);
+                ul.appendChild(li);
+              });
+            }
+
+            salaDiv.appendChild(ul);
+          } catch (e) {
+            console.error(e);
+            const erro = document.createElement('p');
+            erro.className = 'msg error';
+            erro.textContent = 'Erro ao carregar recursos desta sala.';
+            salaDiv.appendChild(erro);
+          }
+
+          listaSalasDiv.appendChild(salaDiv);
+        }
+
+        if (jsonSalas.data.length === 0) {
+          listaSalasDiv.textContent = 'Nenhuma sala cadastrada.';
+        }
+      } catch (e) {
+        console.error(e);
+        listaSalasDiv.textContent = 'Erro ao carregar salas.';
+      }
+    }
+
+    (async function init() {
+      await Promise.all([
+        carregarSalasEDropdown(),
+        carregarRecursosEDropdown()
+      ]);
+      await carregarSalasComRecursos();
+    })();
+  </script>
+</body>
+</html>
