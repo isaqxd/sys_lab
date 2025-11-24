@@ -97,4 +97,22 @@ router.patch('/updatePartial/:id', (req, res) => {
   });
 });
 
+// findByEmail
+router.get('/findByEmail', (req, res) => {
+  const { email } = req.query;
+  
+  if (!email) {
+    return res.status(400).json({ sucesso: false, erro: 'Email é obrigatório' });
+  }
+
+  usuarioService.findEmail(email, (err, row) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ sucesso: false, erro: 'Erro ao buscar' });
+    }
+    if (!row) return res.status(404).json({ sucesso: false, erro: 'Email não encontrado' });
+    res.json({ sucesso: true, data: row });
+  });
+});
+
 module.exports = router;

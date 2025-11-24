@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gerenciar Usuários</title>
+</head>
+
+<body>
+    <a href="cadastro-usuario.html">
+        <li>Cadastrar Usuario</li>
+    </a>
+
+    <h1>Gerenciar Usuários</h1>
+    <div style="margin-bottom: 20px;">
+        <label>Filtrar por Status:</label>
+        <button onclick="carregarTodosUsuarios()">Todos</button>
+        <button onclick="carregarUsuariosAtivos()">Ativos</button>
+        <button onclick="carregarUsuariosInativos()">Inativos</button>
+    </div>
+    <!-- Campo de pesquisa -->
+    <div style="margin-bottom: 20px;">
+        <label for="search-email">Pesquisar por Email:</label>
+        <input type="email" id="search-email" placeholder="Digite o email...">
+        <button onclick="pesquisarPorEmail()">Pesquisar</button>
+        <button onclick="limparPesquisa()">Mostrar Todos</button>
+    </div>
+
+    <h2>Lista de Usuários</h2>
+    <div id="message"></div>
+
+    <div id="loading-users">
+        Carregando usuários...
+    </div>
+
+    <div id="users-container" style="display: none;">
+        <!-- Os cards dos usuários serão inseridos aqui -->
+    </div>
+</body>
+<script src="js/editarUsuario.js"></script>
+
+</html>

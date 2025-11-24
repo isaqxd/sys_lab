@@ -6,9 +6,10 @@ function buscarPorEmail(email, callback) {
     db.query(sql, [email], callback);
 }
 
-module.exports = {
-    buscarPorEmail
-};
+function findByEmail(email, callback) {
+    const sql = 'SELECT * FROM usuario WHERE email = ?';
+    db.query(sql, [email], callback)
+}
 
 function salvarUsuario(usuario, callback) {
     const { nome, email, senha, tipo, status_usuario } = usuario;
@@ -75,10 +76,7 @@ module.exports = {
     buscarPorId,
     atualizarUsuario,
     atualizarParcial,
-<<<<<<< Updated upstream
-    desativarSala,
-    buscarPorEmail
-=======
-    desativarUsuario
->>>>>>> Stashed changes
+    buscarPorEmail,
+    desativarUsuario,
+    findByEmail
 };

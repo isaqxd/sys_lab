@@ -50,7 +50,7 @@ function atualizarPorId(id, usuario, callback) {
 
 // UPDATE PARCIAL
 function atualizarParcial(id, campos, callback) {
-    const allowed = ['nome','email','senha','tipo','status_usuario'];
+    const allowed = ['nome', 'email', 'senha', 'tipo', 'status_usuario'];
     const fieldsSQL = [];
     const values = [];
 
@@ -76,6 +76,22 @@ function desativar(id, callback) {
     });
 }
 
+// READ (email)
+function findEmail(email, callback) {
+    usuarioDAO.findByEmail(email, (err, rows) => {
+        if (err) {
+            console.error('Erro no service findEmail:', err);
+            return callback({ status: 500, erro: 'Erro interno ao buscar email' });
+        }
+        if (!rows || rows.length === 0) {
+            return callback(null, null);
+        }
+        const usuario = rows[0];
+
+        callback(null, usuario);
+    });
+}
+
 module.exports = {
     salvarUsuario,
     validarNome,
@@ -85,5 +101,6 @@ module.exports = {
     atualizarPorId,
     atualizarParcial,
     desativar,
+    findEmail,
     dao: usuarioDAO
 };

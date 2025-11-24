@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cadastro Usuário</title>
+  <style>
+    .success {
+      color: green;
+    }
+
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Cadastro de Usuário</h1>
+  <div id="message"></div>
+
+  <form id="formCad">
+    <label for="nome">Nome:
+      <input type="text" id="nome" name="nome" required>
+    </label>
+    <br>
+
+    <label for="email">Email:
+      <input type="email" id="email" name="email" required>
+    </label>
+    <br>
+
+    <label for="senha">Senha:
+      <input type="password" id="senha" name="senha" required>
+    </label>
+    <br>
+
+    <button type="submit">Cadastrar Usuário</button>
+  </form>
+</body>
+<script src="./js/cadastroUsuario.js"></script>
+
+</html>
