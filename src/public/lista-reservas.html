@@ -47,7 +47,7 @@
 
     const renderReservas = (elementId, reservas) => {
       const container = document.querySelector(`#${elementId} .reserva-container`);
-      container.innerHTML = ''; // limpa apenas o conteúdo do container, não o <h2>
+      container.innerHTML = '';
 
       if (reservas.length === 0) {
         container.innerHTML = '<p>Nenhuma reserva</p>';
