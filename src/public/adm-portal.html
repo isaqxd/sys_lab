@@ -203,14 +203,12 @@
                 <a href="#" class="list-group-item list-group-item-action">
                     <i class="bi bi-speedometer2"></i> Dashboard
                 </a>
-                <a href="/sala-reservas.html" class="list-group-item list-group-item-action">
-                    <i class="bi bi-calendar-plus"></i> Nova Reserva
-                </a>
-                <a href="sala-reservas-admin.html" class="list-group-item list-group-item-action">
-                    <i class="bi bi-clock-history"></i> Minhas Reservas
-                </a>
-                <a href="editar-usuario.html" class="list-group-item list-group-item-action active" onclick="return false;">
+                <!-- CORREÇÃO: Remover o href para evitar recarregar a página atual -->
+                <a href="adm-portal.html" class="list-group-item list-group-item-action active" onclick="return false;">
                     <i class="bi bi-people"></i> Gerenciar Usuários
+                </a>
+                <a href="adm-lista-reservas.html" class="list-group-item list-group-item-action">
+                    <i class="bi bi-calendar-check"></i> Gerenciar Reservas
                 </a>
                 <a href="index.html" class="list-group-item list-group-item-action text-danger mt-5" onclick="logout()">
                     <i class="bi bi-box-arrow-left"></i> Sair
@@ -237,7 +235,7 @@
             <div class="container-fluid px-4 mt-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2 class="mb-0 text-dark" id="page-title">Gerenciar Usuários</h2>
-                    <a href="cadastro-usuario.html" class="btn btn-primary">
+                    <a href="adm-cadastro-usuario.html" class="btn btn-primary">
                         <i class="bi bi-person-plus"></i> Cadastrar Usuário
                     </a>
                 </div>

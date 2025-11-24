@@ -118,22 +118,15 @@
         <div id="sidebar-wrapper">
             <img src="img/sys_lab_logo_white.svg" alt="SysLab Logo" class="sidebar-heading img-fluid p-3">
             <div class="list-group list-group-flush mt-3">
-                <a href="#" id="link-dashboard-sidebar" class="list-group-item list-group-item-action">
+                <a href="prof-portal.html" id="link-dashboard-sidebar" class="list-group-item list-group-item-action">
                     <i class="bi bi-speedometer2"></i> Dashboard
                 </a>
-                <a href="#" class="list-group-item list-group-item-action active">
+                <a href="prof-reservar-sala.html" class="list-group-item list-group-item-action active">
                     <i class="bi bi-calendar-plus"></i> Nova Reserva
                 </a>
-                <a href="#" class="list-group-item list-group-item-action">
+                <a href="prof-lista-reservas.html" class="list-group-item list-group-item-action">
                     <i class="bi bi-clock-history"></i> Minhas Reservas
                 </a>
-                
-                <div id="menu-admin" style="display: none;">
-                    <div class="text-secondary small fw-bold text-uppercase px-3 mt-4 mb-1">Administração</div>
-                    <a href="#" class="list-group-item list-group-item-action"><i class="bi bi-pc-display"></i> Gerenciar Salas</a>
-                    <a href="#" class="list-group-item list-group-item-action"><i class="bi bi-people"></i> Gerenciar Usuários</a>
-                </div>
-
                 <a href="#" class="list-group-item list-group-item-action text-danger mt-5" onclick="logout()">
                     <i class="bi bi-box-arrow-left"></i> Sair
                 </a>
@@ -270,7 +263,7 @@
             const usuarioTipo = localStorage.getItem('usuario_tipo');
             const usuarioId = localStorage.getItem('usuario_id');
             // --- LÓGICA DE REDIRECIONAMENTO INTELIGENTE ---
-            let urlDashboard = 'portal_professor.html'; // Padrão (Professor)
+            let urlDashboard = 'prof-portal.html'; // Padrão (Professor)
 
             if (usuarioTipo === 'ADMIN') {
                 urlDashboard = 'portal_admin.html'; // Nome do arquivo do Admin

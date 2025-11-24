@@ -54,10 +54,15 @@ function buscarReserva(id, callback) {
             r.id_reserva, 
             r.data_reserva, 
             r.status, 
-            r.motivo, 
-            s.nome AS nome_sala
+            r.motivo,
+            r.fk_horario, -- Adicionado para garantir
+            s.nome AS nome_sala,
+            h.turno AS nome_turno, -- Traz o nome (MANHÃ, TARDE...)
+            h.hora_inicio, 
+            h.hora_fim
         FROM reserva r
         JOIN sala s ON s.id_sala = r.fk_sala
+        JOIN horario h ON h.id_horario = r.fk_horario -- JOIN adicionado
         WHERE r.fk_usuario = ?
         ORDER BY r.data_reserva DESC;
     `;
