@@ -9,5 +9,6 @@ router.use('/reserva', require('../controllers/reservaController'));
 router.use('/sala-recurso', require('../controllers/salaRecursoController'));
 router.use('/sala', require('../controllers/salaController'));
 router.use('/usuario', require('../controllers/usuarioController'));
+router.use('/relatorio', require('../controllers/relatorioController'));
 
 module.exports = router;
