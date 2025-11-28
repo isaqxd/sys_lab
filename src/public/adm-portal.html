@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Início - SysLab</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/adm-portal.css">
+</head>
+
+<body>
+    <div class="d-flex" id="wrapper">
+
+        <div id="sidebar-wrapper">
+            <img src="img/sys_lab_logo_white.svg" alt="SysLab Logo" class="sidebar-heading img-fluid p-3">
+            <div class="list-group list-group-flush mt-3">
+                <a href="#" class="list-group-item list-group-item-action active">
+                    <i class="bi bi-house-door"></i> Início
+                </a>
+                <a href="adm-gerenciar-usuario.html" class="list-group-item list-group-item-action">
+                    <i class="bi bi-people"></i> Gerenciar Usuários
+                </a>
+                <a href="adm-lista-reservas.html" class="list-group-item list-group-item-action">
+                    <i class="bi bi-calendar-check"></i> Gerenciar Reservas
+                </a>
+                <a href="adm-gerenciar-sala.html" class="list-group-item list-group-item-action">
+                    <i class="bi bi-pc-display"></i> Gerenciar Salas
+                </a>
+                <a href="adm-relatorio.html" class="list-group-item list-group-item-action">
+                    <i class="bi bi-file-earmark-pdf"></i> Relatórios
+                </a>
+                <a href="index.html" class="list-group-item list-group-item-action text-danger mt-5" onclick="logout()">
+                    <i class="bi bi-box-arrow-left"></i> Sair
+                </a>
+            </div>
+        </div>
+
+        <div id="page-content-wrapper">
+
+            <nav class="navbar navbar-expand-lg navbar-top">
+                <div class="container-fluid">
+                    <button class="btn btn-outline-dark d-md-none" id="menu-toggle"><i class="bi bi-list"></i></button>
+                    <div class="ms-auto d-flex align-items-center">
+                        <div class="me-3 text-end d-none d-md-block">
+                            <span class="d-block fw-bold text-dark" id="user-name-display">Admin</span>
+                            <small class="text-muted" id="user-type-display">Administrador</small>
+                        </div>
+                        <img src="" id="user-avatar" class="rounded-circle" width="40" height="40" alt="Avatar">
+                    </div>
+                </div>
+            </nav>
+
+            <div class="container-fluid px-4 mt-4 pb-5">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="text-dark mb-0">Visão Geral</h2>
+                    <span class="text-muted small" id="data-hoje">Data de hoje...</span>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <div class="col-md-3">
+                        <div class="card card-kpi p-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted small text-uppercase mb-1 fw-bold">Reservas Hoje</p>
+                                    <h3 class="mb-0 fw-bold text-dark" id="kpi-hoje">-</h3>
+                                </div>
+                                <div class="icon-box bg-gradient-primary">
+                                    <i class="bi bi-calendar-day"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="card card-kpi p-3 border-start border-4 border-warning">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted small text-uppercase mb-1 fw-bold">Pendentes</p>
+                                    <h3 class="mb-0 fw-bold text-warning" id="kpi-pendentes">-</h3>
+                                </div>
+                                <div class="icon-box bg-gradient-warning">
+                                    <i class="bi bi-hourglass-split"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="card card-kpi p-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted small text-uppercase mb-1 fw-bold">Salas Ativas</p>
+                                    <h3 class="mb-0 fw-bold text-success" id="kpi-salas-ativas">-</h3>
+                                </div>
+                                <div class="icon-box bg-gradient-success">
+                                    <i class="bi bi-check-circle"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="card card-kpi p-3 border-start border-4 border-danger">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted small text-uppercase mb-1 fw-bold">Em Manutenção</p>
+                                    <h3 class="mb-0 fw-bold text-danger" id="kpi-manutencao">-</h3>
+                                </div>
+                                <div class="icon-box bg-gradient-danger">
+                                    <i class="bi bi-tools"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-lg-8">
+                        <div class="card card-kpi shadow-sm">
+                            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                                <h6 class="m-0 fw-bold text-primary">Agenda do Dia (Hoje)</h6>
+                                <a href="sala-reservas-admin.html" class="btn btn-sm btn-outline-primary">Ver Todas</a>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th class="ps-4">Sala</th>
+                                                <th>Horário</th>
+                                                <th>Professor</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tabela-hoje">
+                                            <tr>
+                                                <td colspan="4" class="text-center py-4">
+                                                    <div class="spinner-border text-primary"></div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="card card-kpi shadow-sm">
+                            <div class="card-header bg-white py-3">
+                                <h6 class="m-0 fw-bold text-dark">Volume Semanal</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="graficoSemanal"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="overlay" onclick="fecharMenu()"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script src="js/adm-portal.js"></script>
+</body>
+
+</html>

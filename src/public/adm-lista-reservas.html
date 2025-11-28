@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Reservas - Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="./css/adm-lista-reservas.css">
+</head>
+
+<body>
+    <div class="d-flex" id="wrapper">
+        <div id="sidebar-wrapper">
+            <img src="img/sys_lab_logo_white.svg" alt="SysLab Logo" class="sidebar-heading img-fluid p-3">
+            <div class="list-group list-group-flush mt-3">
+                <a href="adm-portal.html" class="list-group-item list-group-item-action">
+                    <i class="bi bi-house-door"></i> Inicio
+                </a>
+                <a href="adm-gerenciar-usuario.html" class="list-group-item list-group-item-action">
+                    <i class="bi bi-people"></i> Gerenciar Usuários
+                </a>
+                <a href="adm-lista-reservas.html" class="list-group-item list-group-item-action active">
+                    <i class="bi bi-calendar-check"></i> Gerenciar Reservas
+                </a>
+                <a href="adm-gerenciar-sala.html" class="list-group-item list-group-item-action">
+                    <i class="bi bi-pc-display"></i> Gerenciar Salas
+                </a>
+                <a href="adm-relatorio.html" class="list-group-item list-group-item-action">
+                    <i class="bi bi-file-earmark-pdf"></i> Relatórios
+                </a>
+                <a href="index.html" class="list-group-item list-group-item-action text-danger mt-5" onclick="logout()">
+                    <i class="bi bi-box-arrow-left"></i> Sair
+                </a>
+            </div>
+        </div>
+
+        <div id="page-content-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-top">
+                <div class="container-fluid">
+                    <button class="btn btn-outline-dark d-md-none" id="menu-toggle">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <div class="ms-auto d-flex align-items-center">
+                        <div class="me-3 text-end d-none d-md-block">
+                            <span class="d-block fw-bold text-dark" id="user-name-display">...</span>
+                            <small class="text-muted" id="user-type-display">...</small>
+                        </div>
+                        <img src="" id="user-avatar" class="rounded-circle" width="40" height="40" alt="Avatar">
+                    </div>
+                </div>
+            </nav>
+
+            <div class="container-fluid px-4 mt-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="mb-0 text-dark">Gerenciar Reservas</h2>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="carregarTodasReservas()">
+                            Todas as Reservas
+                        </button>
+                        <button type="button" class="btn btn-outline-success btn-sm"
+                            onclick="filtrarReservas('CONFIRMADA')">
+                            Confirmadas
+                        </button>
+                        <button type="button" class="btn btn-outline-warning btn-sm"
+                            onclick="filtrarReservas('PENDENTE')">
+                            Pendentes
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm"
+                            onclick="filtrarReservas('CANCELADA')">
+                            Canceladas
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mensagens -->
+                <div id="message" class="alert alert-dismissible fade show" style="display: none;" role="alert">
+                    <span id="message-text"></span>
+                    <button type="button" class="btn-close" onclick="fecharMensagem()"></button>
+                </div>
+
+                <!-- Loading -->
+                <div id="loading-reservas" class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2">Carregando reservas...</p>
+                </div>
+
+                <!-- Lista de Reservas -->
+                <div id="reservas-container" style="display: none;">
+                    <div class="card card-dashboard mb-4">
+                        <div class="card-header bg-white py-3">
+                            <h6 class="m-0 fw-bold text-primary">
+                                <i class="bi bi-calendar-check"></i> <span id="reservas-title">Todas as Reservas</span>
+                                <small class="text-muted ms-2" id="reservas-count"></small>
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div id="reservas-lista">
+                                <!-- As reservas serão inseridas aqui -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="overlay" onclick="fecharMenu()"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/adm-lista-reservas.js"></script>
+</body>
+
+</html>
