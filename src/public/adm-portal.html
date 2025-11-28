@@ -5,70 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Início - SysLab</title>
-    
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    
-    <style>
-        body { background-color: #f3f4f6; overflow-x: hidden; }
-
-        /* --- LAYOUT --- */
-        #wrapper { display: flex; width: 100%; min-height: 100vh; }
-        #sidebar-wrapper { min-height: 100vh; width: 250px; margin-left: 0; background-color: #212529; color: #fff; transition: margin .25s ease-out; position: fixed; z-index: 1000; }
-        #sidebar-wrapper .sidebar-heading { padding: 1rem 0; background-color: #1a1e21; text-align: center; border-bottom: 1px solid #444; display: flex; justify-content: center; }
-        .logo-sidebar { max-width: 80%; height: auto; object-fit: contain; }
-        
-        .list-group-item-action { background-color: transparent; color: #b3b3b3; border: none; padding: 15px 20px; transition: all 0.2s; }
-        .list-group-item-action:hover { background-color: #343a40; color: #fff; padding-left: 25px; }
-        .list-group-item-action.active { background-color: #0d6efd; color: #fff; border-left: 4px solid #fff; }
-        .list-group-item i { margin-right: 10px; }
-        
-        #page-content-wrapper { width: 100%; margin-left: 250px; transition: margin .25s ease-out; }
-        .navbar-top { background-color: #fff; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08); padding: 15px 30px; }
-
-        @media (max-width: 768px) {
-            #sidebar-wrapper { margin-left: -250px; }
-            #page-content-wrapper { margin-left: 0; }
-            #wrapper.toggled #sidebar-wrapper { margin-left: 0; }
-        }
-
-        #overlay { display: none; position: fixed; width: 100%; height: 100%; top: 0; left: 0; background-color: rgba(0, 0, 0, 0.5); z-index: 990; }
-        #wrapper.toggled #overlay { display: block; }
-
-        /* --- ESTILOS DASHBOARD --- */
-        .card-kpi {
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            transition: transform 0.2s;
-            height: 100%;
-        }
-        .card-kpi:hover { transform: translateY(-3px); }
-        
-        .icon-box {
-            width: 50px; height: 50px;
-            border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem;
-            color: white;
-        }
-        
-        .bg-gradient-primary { background: linear-gradient(45deg, #4e73df, #224abe); }
-        .bg-gradient-success { background: linear-gradient(45deg, #1cc88a, #13855c); }
-        .bg-gradient-warning { background: linear-gradient(45deg, #f6c23e, #dda20a); }
-        .bg-gradient-danger  { background: linear-gradient(45deg, #e74a3b, #be2617); }
-
-        .chart-container {
-            position: relative;
-            height: 300px;
-            width: 100%;
-        }
-    </style>
+    <link rel="stylesheet" href="css/adm-portal.css">
 </head>
 
 <body>
     <div class="d-flex" id="wrapper">
-        
+
         <div id="sidebar-wrapper">
             <img src="img/sys_lab_logo_white.svg" alt="SysLab Logo" class="sidebar-heading img-fluid p-3">
             <div class="list-group list-group-flush mt-3">
@@ -94,7 +39,7 @@
         </div>
 
         <div id="page-content-wrapper">
-            
+
             <nav class="navbar navbar-expand-lg navbar-top">
                 <div class="container-fluid">
                     <button class="btn btn-outline-dark d-md-none" id="menu-toggle"><i class="bi bi-list"></i></button>
@@ -191,7 +136,11 @@
                                             </tr>
                                         </thead>
                                         <tbody id="tabela-hoje">
-                                            <tr><td colspan="4" class="text-center py-4"><div class="spinner-border text-primary"></div></td></tr>
+                                            <tr>
+                                                <td colspan="4" class="text-center py-4">
+                                                    <div class="spinner-border text-primary"></div>
+                                                </td>
+                                            </tr>
                                         </tbody>
                                     </table>
                                 </div>
@@ -216,182 +165,13 @@
             </div>
         </div>
     </div>
-    
+
     <div id="overlay" onclick="fecharMenu()"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <script>
-        const API_BASE = 'http://localhost:3000/api';
-        
-        // Mapas globais
-        let mapaSalas = {};
-        let mapaUsuarios = {};
-        let mapaTurnos = {};
 
-        // 1. Inicialização
-        document.addEventListener('DOMContentLoaded', async () => {
-            const usuarioId = localStorage.getItem('usuario_id');
-            const usuarioTipo = localStorage.getItem('usuario_tipo');
-            const usuarioNome = localStorage.getItem('usuario_nome');
-
-            if (!usuarioId || usuarioTipo !== 'ADMIN') {
-                window.location.href = 'index.html';
-                return;
-            }
-
-            // Header
-            document.getElementById('user-name-display').innerText = usuarioNome;
-            document.getElementById('user-avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(usuarioNome)}&background=0D6EFD&color=fff`;
-            
-            // Data de hoje no topo
-            const hoje = new Date();
-            document.getElementById('data-hoje').innerText = hoje.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
-
-            await carregarDadosDashboard();
-        });
-
-        // 2. Carregamento Geral
-        async function carregarDadosDashboard() {
-            try {
-                // Busca tudo em paralelo
-                const [resSalas, resReservas, resUsuarios, resHorarios] = await Promise.all([
-                    fetch(`${API_BASE}/sala/findAll`),
-                    fetch(`${API_BASE}/reserva/findAll`),
-                    fetch(`${API_BASE}/usuario/findAll`),
-                    fetch(`${API_BASE}/horario/findAll`)
-                ]);
-
-                const jsonSalas = await resSalas.json();
-                const jsonReservas = await resReservas.json();
-                const jsonUsuarios = await resUsuarios.json();
-                const jsonHorarios = await resHorarios.json();
-
-                // Preenche mapas
-                if(jsonSalas.sucesso) jsonSalas.data.forEach(s => mapaSalas[s.id_sala] = s);
-                if(jsonUsuarios.sucesso) jsonUsuarios.data.forEach(u => mapaUsuarios[u.id_usuario] = u.nome);
-                if(jsonHorarios.sucesso) jsonHorarios.data.forEach(h => mapaTurnos[h.id_horario] = h.turno);
-
-                // Preenche KPIs de Salas
-                const salas = jsonSalas.data || [];
-                const manutencao = salas.filter(s => s.status === 'MANUTENCAO').length;
-                const ativas = salas.filter(s => s.status === 'DISPONIVEL' || s.status === 'OCUPADA').length;
-                
-                document.getElementById('kpi-manutencao').innerText = manutencao;
-                document.getElementById('kpi-salas-ativas').innerText = ativas;
-
-                // Preenche Dados de Reservas
-                processarReservas(jsonReservas.data || []);
-
-            } catch (error) {
-                console.error("Erro ao carregar dashboard", error);
-            }
-        }
-
-        function processarReservas(reservas) {
-            const hojeStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-            
-            // KPIs
-            const reservasHoje = reservas.filter(r => r.data_reserva.startsWith(hojeStr) && r.status !== 'CANCELADA');
-            const pendentes = reservas.filter(r => r.status === 'PENDENTE');
-
-            document.getElementById('kpi-hoje').innerText = reservasHoje.length;
-            document.getElementById('kpi-pendentes').innerText = pendentes.length;
-
-            // Tabela Hoje
-            renderizarTabelaHoje(reservasHoje);
-
-            // Gráfico (Últimos 7 dias ou Próximos 7 dias - vamos fazer Volume Semanal Geral)
-            renderizarGrafico(reservas);
-        }
-
-        function renderizarTabelaHoje(reservasHoje) {
-            const tbody = document.getElementById('tabela-hoje');
-            tbody.innerHTML = '';
-
-            if (reservasHoje.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-3">Nenhuma reserva agendada para hoje.</td></tr>`;
-                return;
-            }
-
-            // Ordenar por horário
-            reservasHoje.sort((a, b) => a.fk_horario - b.fk_horario);
-
-            reservasHoje.forEach(r => {
-                const nomeSala = mapaSalas[r.fk_sala] ? mapaSalas[r.fk_sala].nome : `ID ${r.fk_sala}`;
-                const nomeProf = mapaUsuarios[r.fk_usuario] || 'Desconhecido';
-                const turno = mapaTurnos[r.fk_horario] || 'Turno';
-                
-                let badge = `<span class="badge bg-success">Confirmada</span>`;
-                if(r.status === 'PENDENTE') badge = `<span class="badge bg-warning text-dark">Pendente</span>`;
-
-                const tr = `
-                    <tr>
-                        <td class="ps-4 fw-bold">${nomeSala}</td>
-                        <td>${turno}</td>
-                        <td>${nomeProf}</td>
-                        <td>${badge}</td>
-                    </tr>
-                `;
-                tbody.innerHTML += tr;
-            });
-        }
-
-        function renderizarGrafico(todasReservas) {
-            // Agrupar reservas por dia da semana (apenas confirmadas)
-            const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-            const contagem = [0, 0, 0, 0, 0, 0, 0];
-
-            todasReservas.forEach(r => {
-                if(r.status === 'CONFIRMADA') {
-                    const data = new Date(r.data_reserva);
-                    const diaIndex = data.getDay(); // 0 a 6
-                    contagem[diaIndex]++;
-                }
-            });
-
-            const ctx = document.getElementById('graficoSemanal').getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: diasSemana,
-                    datasets: [{
-                        label: 'Reservas Totais',
-                        data: contagem,
-                        backgroundColor: '#4e73df',
-                        borderRadius: 5
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    scales: {
-                        y: { beginAtZero: true, ticks: { stepSize: 1 } },
-                        x: { grid: { display: false } }
-                    }
-                }
-            });
-        }
-
-        // Mobile Menu
-        const wrapper = document.getElementById("wrapper");
-        document.getElementById("menu-toggle").onclick = (e) => {
-            e.stopPropagation();
-            wrapper.classList.toggle("toggled");
-            document.getElementById("overlay").style.display = wrapper.classList.contains("toggled") ? "block" : "none";
-        };
-        function fecharMenu() {
-            wrapper.classList.remove("toggled");
-            document.getElementById("overlay").style.display = "none";
-        }
-        function logout() {
-            localStorage.clear();
-            window.location.href = 'index.html';
-        }
-    </script>
+    <script src="js/adm-portal.js"></script>
 </body>
+
 </html>

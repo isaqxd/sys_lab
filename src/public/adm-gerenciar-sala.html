@@ -5,87 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerenciar Salas - SysLab</title>
-    
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/adm-gerenciar-sala.css">
     
-    <style>
-        body { background-color: #f3f4f6; overflow-x: hidden; }
-
-        /* --- LAYOUT DO PORTAL --- */
-        #wrapper { display: flex; width: 100%; min-height: 100vh; }
-        #sidebar-wrapper { min-height: 100vh; width: 250px; margin-left: 0; background-color: #212529; color: #fff; transition: margin .25s ease-out; position: fixed; z-index: 1000; }
-        #sidebar-wrapper .sidebar-heading { padding: 1rem 0; background-color: #1a1e21; text-align: center; border-bottom: 1px solid #444; display: flex; justify-content: center; }
-        .logo-sidebar { max-width: 80%; height: auto; object-fit: contain; }
-        
-        .list-group-item-action { background-color: transparent; color: #b3b3b3; border: none; padding: 15px 20px; transition: all 0.2s; }
-        .list-group-item-action:hover { background-color: #343a40; color: #fff; padding-left: 25px; }
-        .list-group-item-action.active { background-color: #0d6efd; color: #fff; border-left: 4px solid #fff; }
-        .list-group-item i { margin-right: 10px; }
-        
-        #page-content-wrapper { width: 100%; margin-left: 250px; transition: margin .25s ease-out; }
-        .navbar-top { background-color: #fff; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08); padding: 15px 30px; }
-
-        @media (max-width: 768px) {
-            #sidebar-wrapper { margin-left: -250px; }
-            #page-content-wrapper { margin-left: 0; }
-            #wrapper.toggled #sidebar-wrapper { margin-left: 0; }
-        }
-
-        #overlay { display: none; position: fixed; width: 100%; height: 100%; top: 0; left: 0; background-color: rgba(0, 0, 0, 0.5); z-index: 990; }
-        #wrapper.toggled #overlay { display: block; }
-
-        /* --- ESTILOS ESPECÍFICOS DA PÁGINA --- */
-        .card-gerencia {
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-        }
-        .card-header-custom {
-            background-color: #fff;
-            border-bottom: 1px solid #eee;
-            padding: 15px 20px;
-            font-weight: bold;
-            color: #0d6efd;
-        }
-        
-        .sala-item {
-            background: #fff;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-            transition: all 0.2s;
-        }
-        .sala-item:hover {
-            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-            border-color: #adb5bd;
-        }
-
-        .badge-recurso {
-            font-size: 0.85rem;
-            background-color: #e9ecef;
-            color: #495057;
-            padding: 5px 10px;
-            border-radius: 20px;
-            margin-right: 5px;
-            margin-bottom: 5px;
-            display: inline-block;
-        }
-        
-        .btn-remove-recurso {
-            color: #dc3545;
-            cursor: pointer;
-            margin-left: 5px;
-        }
-        .btn-remove-recurso:hover { color: #a71d2a; }
-    </style>
 </head>
 
 <body>
     <div class="d-flex" id="wrapper">
-        
+
         <div id="sidebar-wrapper">
             <img src="img/sys_lab_logo_white.svg" alt="SysLab Logo" class="sidebar-heading img-fluid p-3">
             <div class="list-group list-group-flush mt-3">
@@ -111,7 +40,7 @@
         </div>
 
         <div id="page-content-wrapper">
-            
+
             <nav class="navbar navbar-expand-lg navbar-top">
                 <div class="container-fluid">
                     <button class="btn btn-outline-dark d-md-none" id="menu-toggle"><i class="bi bi-list"></i></button>
@@ -130,14 +59,24 @@
 
                 <div class="row">
                     <div class="col-lg-4">
-                        
+
+                        <div class="card card-gerencia border-primary border-2">
+                            <div class="card-body text-center">
+                                <h5 class="card-title text-primary fw-bold">Nova Sala</h5>
+                                <p class="card-text small text-muted">Cadastre um novo laboratório no sistema.</p>
+                                <button class="btn btn-primary w-100" onclick="abrirModalSala()">
+                                    <i class="bi bi-plus-lg"></i> Cadastrar Sala
+                                </button>
+                            </div>
+                        </div>
                         <div class="card card-gerencia">
                             <div class="card-header-custom"><i class="bi bi-plus-circle"></i> Novo Recurso</div>
                             <div class="card-body">
                                 <form id="formRecurso">
                                     <div class="mb-3">
                                         <label for="nomeRecurso" class="form-label">Nome do Recurso</label>
-                                        <input type="text" class="form-control" id="nomeRecurso" placeholder="Ex: Projetor, Ar Condicionado" required>
+                                        <input type="text" class="form-control" id="nomeRecurso"
+                                            placeholder="Ex: Projetor, Ar Condicionado" required>
                                     </div>
                                     <button type="submit" class="btn btn-primary w-100">Salvar Recurso</button>
                                     <div id="msgRecurso" class="mt-2"></div>
@@ -146,7 +85,8 @@
                         </div>
 
                         <div class="card card-gerencia">
-                            <div class="card-header-custom"><i class="bi bi-link-45deg"></i> Vincular Recurso à Sala</div>
+                            <div class="card-header-custom"><i class="bi bi-link-45deg"></i> Vincular Recurso à Sala
+                            </div>
                             <div class="card-body">
                                 <form id="formVinculo">
                                     <div class="mb-3">
@@ -169,382 +109,78 @@
                     </div>
 
                     <div class="col-lg-8">
-                        
+
                         <div class="card card-gerencia">
                             <div class="card-body d-flex gap-2 align-items-center flex-wrap">
                                 <span class="fw-bold me-2"><i class="bi bi-funnel"></i> Filtrar:</span>
-                                <button class="btn btn-outline-secondary btn-sm" onclick="carregarTodasSalas()">Todas</button>
-                                <button class="btn btn-outline-success btn-sm" onclick="carregarSalasAtivas()">Ativas</button>
-                                <button class="btn btn-outline-danger btn-sm" onclick="carregarSalasInativas()">Inativas</button>
+                                <button class="btn btn-outline-secondary btn-sm"
+                                    onclick="carregarTodasSalas()">Todas</button>
+                                <button class="btn btn-outline-success btn-sm"
+                                    onclick="carregarSalasAtivas()">Ativas</button>
+                                <button class="btn btn-outline-danger btn-sm"
+                                    onclick="carregarSalasInativas()">Inativas</button>
                             </div>
                         </div>
 
                         <div id="listaGerenciamentoSalas">
-                            <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+                            <div class="text-center py-5">
+                                <div class="spinner-border text-primary"></div>
+                            </div>
                         </div>
 
                     </div>
                 </div>
-                
+
                 <div id="listaSalas" style="display: none;"></div>
 
             </div>
         </div>
     </div>
-    
+
+    <div class="modal fade" id="modalCadastroSala" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Cadastrar Nova Sala</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="msgModalSala"></div>
+
+                    <form id="formSala">
+                        <div class="mb-3">
+                            <label for="nomeNovaSala" class="form-label fw-bold">Nome da Sala</label>
+                            <input type="text" class="form-control" id="nomeNovaSala" name="nome"
+                                placeholder="Ex: Laboratório 01" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="capacidadeNovaSala" class="form-label fw-bold">Capacidade</label>
+                            <input type="number" class="form-control" id="capacidadeNovaSala" name="capacidade" min="1"
+                                value="30" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Recursos da Sala</label>
+                            <p class="text-muted small mb-2">Marque os recursos que esta sala possui:</p>
+                            <div id="checkbox_recursos" class="checkbox-group">
+                                <div class="text-center text-muted small">Carregando recursos...</div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">Confirmar Cadastro</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="overlay" onclick="fecharMenu()"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script>
-        const API_BASE = 'http://localhost:3000/api';
 
-        // --- 1. AUTENTICAÇÃO E UI INICIAL ---
-        document.addEventListener('DOMContentLoaded', async () => {
-            const usuarioId = localStorage.getItem('usuario_id');
-            const usuarioTipo = localStorage.getItem('usuario_tipo');
-            const usuarioNome = localStorage.getItem('usuario_nome');
-
-            if (!usuarioId || usuarioTipo !== 'ADMIN') {
-                alert("Acesso restrito a administradores.");
-                window.location.href = 'index.html';
-                return;
-            }
-
-            document.getElementById('user-name-display').innerText = usuarioNome;
-            document.getElementById('user-avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(usuarioNome)}&background=0D6EFD&color=fff`;
-
-            // Carregamentos iniciais
-            await Promise.all([
-                carregarSalasEDropdown(),
-                carregarRecursosEDropdown(),
-                carregarTodasSalas()
-            ]);
-        });
-
-        // Elementos DOM
-        const formRecurso = document.getElementById('formRecurso');
-        const msgRecurso = document.getElementById('msgRecurso');
-        const formVinculo = document.getElementById('formVinculo');
-        const msgVinculo = document.getElementById('msgVinculo');
-        const selectSala = document.getElementById('selectSala');
-        const selectRecurso = document.getElementById('selectRecurso');
-        const listaDiv = document.getElementById('listaGerenciamentoSalas');
-        
-        let todasSalas = [];
-
-        // --- 2. HELPERS DE UI ---
-        function showMessage(element, text, type) {
-            // type: 'success' (verde) ou 'danger' (vermelho)
-            element.innerHTML = `<div class="alert alert-${type} py-2 px-3 fs-6 mb-0" role="alert">${text}</div>`;
-            setTimeout(() => { element.innerHTML = ''; }, 4000);
-        }
-
-        // --- 3. CARREGAMENTO DE DADOS ---
-        async function carregarSalasEDropdown() {
-            try {
-                const resp = await fetch(`${API_BASE}/sala/findAll`);
-                const json = await resp.json();
-                if (!json.sucesso) throw new Error(json.erro);
-
-                selectSala.innerHTML = '<option value="">Selecione uma sala</option>';
-                json.data.forEach(sala => {
-                    const opt = document.createElement('option');
-                    opt.value = sala.id_sala;
-                    opt.textContent = `${sala.nome}`;
-                    selectSala.appendChild(opt);
-                });
-            } catch (e) { console.error(e); }
-        }
-
-        async function carregarRecursosEDropdown() {
-            try {
-                const resp = await fetch(`${API_BASE}/recurso/findAll`);
-                const json = await resp.json();
-                if (!json.sucesso) throw new Error(json.erro);
-
-                selectRecurso.innerHTML = '<option value="">Selecione um recurso</option>';
-                json.data.forEach(rec => {
-                    const opt = document.createElement('option');
-                    opt.value = rec.id_recurso;
-                    opt.textContent = rec.nome;
-                    selectRecurso.appendChild(opt);
-                });
-            } catch (e) { console.error(e); }
-        }
-
-        // --- 4. AÇÕES DE FORMULÁRIO (ADICIONAR RECURSO / VINCULAR) ---
-        formRecurso.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const nome = document.getElementById('nomeRecurso').value.trim();
-            
-            try {
-                const resp = await fetch(`${API_BASE}/recurso/save`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nome })
-                });
-                const json = await resp.json();
-                if (!resp.ok || !json.sucesso) throw new Error(json.erro || 'Erro ao salvar');
-
-                showMessage(msgRecurso, 'Recurso salvo!', 'success');
-                document.getElementById('nomeRecurso').value = '';
-                await carregarRecursosEDropdown();
-            } catch (e) {
-                showMessage(msgRecurso, e.message, 'danger');
-            }
-        });
-
-        formVinculo.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const fk_sala = selectSala.value;
-            const fk_recurso = selectRecurso.value;
-
-            try {
-                const resp = await fetch(`${API_BASE}/sala-recurso/save`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ fk_sala: Number(fk_sala), fk_recurso: Number(fk_recurso) })
-                });
-                const json = await resp.json();
-                
-                if(resp.status === 409) throw new Error('Este recurso já está na sala.');
-                if (!resp.ok || !json.sucesso) throw new Error(json.erro || 'Erro ao vincular');
-
-                showMessage(msgVinculo, 'Vínculo criado com sucesso!', 'success');
-                // Recarrega a lista para mostrar o novo recurso na sala
-                carregarTodasSalas(); 
-            } catch (e) {
-                showMessage(msgVinculo, e.message, 'danger');
-            }
-        });
-
-        // --- 5. LISTAGEM E GERENCIAMENTO DE SALAS ---
-        async function carregarTodasSalas() {
-            listaDiv.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary"></div></div>';
-            try {
-                const response = await fetch(`${API_BASE}/sala/findAll`);
-                const result = await response.json();
-                if (response.ok && result.sucesso) {
-                    todasSalas = result.data;
-                    await exibirSalasParaGerenciamento(todasSalas);
-                }
-            } catch (error) {
-                listaDiv.innerHTML = '<p class="text-danger text-center">Erro ao carregar salas.</p>';
-            }
-        }
-
-        async function carregarSalasAtivas() {
-            if (todasSalas.length === 0) await carregarTodasSalas();
-            const filtradas = todasSalas.filter(s => s.status === 'DISPONIVEL' || s.status === 'OCUPADA');
-            exibirSalasParaGerenciamento(filtradas);
-        }
-
-        async function carregarSalasInativas() {
-            if (todasSalas.length === 0) await carregarTodasSalas();
-            const filtradas = todasSalas.filter(s => s.status === 'DESATIVADA' || s.status === 'MANUTENCAO');
-            exibirSalasParaGerenciamento(filtradas);
-        }
-
-        // RENDERIZAÇÃO DA LISTA
-        async function exibirSalasParaGerenciamento(salas) {
-            if (salas.length === 0) {
-                listaDiv.innerHTML = '<p class="text-center text-muted py-4">Nenhuma sala encontrada.</p>';
-                return;
-            }
-
-            listaDiv.innerHTML = '';
-
-            // Precisamos buscar os recursos de cada sala para exibir junto
-            // Para performance, vamos renderizar a sala e depois buscar os recursos assincronamente
-            for (const sala of salas) {
-                const salaDiv = document.createElement('div');
-                salaDiv.id = `sala-${sala.id_sala}`;
-                salaDiv.className = 'sala-item';
-
-                // Badge de Status
-                let badgeClass = 'bg-success';
-                if(sala.status === 'MANUTENCAO') badgeClass = 'bg-warning text-dark';
-                if(sala.status === 'DESATIVADA') badgeClass = 'bg-danger';
-                if(sala.status === 'OCUPADA') badgeClass = 'bg-primary';
-
-                const btnStatusLabel = (sala.status === 'DISPONIVEL' || sala.status === 'OCUPADA') ? 'Desativar' : 'Reativar';
-                const btnStatusClass = (sala.status === 'DISPONIVEL' || sala.status === 'OCUPADA') ? 'btn-outline-danger' : 'btn-outline-success';
-                const fnStatus = (sala.status === 'DISPONIVEL' || sala.status === 'OCUPADA') ? 'desativarSala' : 'reativarSala';
-
-                salaDiv.innerHTML = `
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div>
-                            <h5 class="mb-1 fw-bold text-dark" id="sala-nome-${sala.id_sala}">
-                                ${sala.nome} <span class="badge ${badgeClass} ms-2" style="font-size:0.7rem">${sala.status}</span>
-                            </h5>
-                            <small class="text-muted">Capacidade: <span id="sala-capacidade-${sala.id_sala}">${sala.capacidade}</span> pessoas</small>
-                        </div>
-                        <div class="btn-group">
-                            <button class="btn btn-sm btn-outline-primary" onclick="iniciarEdicaoSala(${sala.id_sala})"><i class="bi bi-pencil"></i> Editar</button>
-                            <button class="btn btn-sm ${btnStatusClass}" onclick="${fnStatus}(${sala.id_sala})">${btnStatusLabel}</button>
-                        </div>
-                    </div>
-                    
-                    <div class="border-top pt-2">
-                        <small class="fw-bold text-secondary d-block mb-1">Recursos:</small>
-                        <div id="recursos-sala-${sala.id_sala}" class="d-flex flex-wrap">
-                            <span class="text-muted small">Carregando recursos...</span>
-                        </div>
-                    </div>
-                `;
-
-                listaDiv.appendChild(salaDiv);
-                
-                // Busca recursos desta sala
-                carregarRecursosDaSala(sala.id_sala);
-            }
-        }
-
-        async function carregarRecursosDaSala(idSala) {
-            const container = document.getElementById(`recursos-sala-${idSala}`);
-            try {
-                const resp = await fetch(`${API_BASE}/sala-recurso/findById/${idSala}`);
-                const json = await resp.json();
-                
-                if (!json.data || json.data.length === 0) {
-                    container.innerHTML = '<span class="text-muted small fst-italic">Sem recursos vinculados.</span>';
-                    return;
-                }
-
-                container.innerHTML = '';
-                json.data.forEach(rec => {
-                    const badge = document.createElement('span');
-                    badge.className = 'badge-recurso';
-                    badge.innerHTML = `${rec.nome} <i class="bi bi-x-circle-fill btn-remove-recurso" onclick="removerRecursoSala(${idSala}, ${rec.id_recurso})" title="Remover"></i>`;
-                    container.appendChild(badge);
-                });
-
-            } catch (e) {
-                container.innerHTML = '<span class="text-danger small">Erro ao buscar recursos.</span>';
-            }
-        }
-
-        // --- 6. AÇÕES INDIVIDUAIS (EDITAR, STATUS, REMOVER RECURSO) ---
-        
-        function iniciarEdicaoSala(salaId) {
-            const salaDiv = document.getElementById(`sala-${salaId}`);
-            const nomeAtual = document.getElementById(`sala-nome-${salaId}`).childNodes[0].textContent.trim();
-            const capacidadeAtual = document.getElementById(`sala-capacidade-${salaId}`).textContent;
-            
-            // Pega o status "cru" da sala original para popular o select
-            const salaObj = todasSalas.find(s => s.id_sala === salaId);
-            const statusAtual = salaObj ? salaObj.status : 'DISPONIVEL';
-
-            salaDiv.innerHTML = `
-                <form onsubmit="salvarEdicaoSala(event, ${salaId})" class="bg-light p-3 rounded border">
-                    <h6 class="fw-bold mb-3">Editar Sala</h6>
-                    <div class="row g-2">
-                        <div class="col-md-4">
-                            <label class="form-label small">Nome</label>
-                            <input type="text" class="form-control form-control-sm" id="edit-sala-nome-${salaId}" value="${nomeAtual}" required>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label small">Capacidade</label>
-                            <input type="number" class="form-control form-control-sm" id="edit-sala-capacidade-${salaId}" value="${capacidadeAtual}" required>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label small">Status</label>
-                            <select class="form-select form-select-sm" id="edit-sala-status-${salaId}">
-                                <option value="DISPONIVEL" ${statusAtual==='DISPONIVEL'?'selected':''}>Disponível</option>
-                                <option value="OCUPADA" ${statusAtual==='OCUPADA'?'selected':''}>Ocupada</option>
-                                <option value="MANUTENCAO" ${statusAtual==='MANUTENCAO'?'selected':''}>Manutenção</option>
-                                <option value="DESATIVADA" ${statusAtual==='DESATIVADA'?'selected':''}>Desativada</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2 d-flex align-items-end">
-                            <button type="submit" class="btn btn-sm btn-primary w-100 mb-1">Salvar</button>
-                        </div>
-                        <div class="col-12 text-end">
-                            <button type="button" class="btn btn-sm btn-link text-secondary" onclick="carregarTodasSalas()">Cancelar</button>
-                        </div>
-                    </div>
-                </form>
-            `;
-        }
-
-        async function salvarEdicaoSala(event, salaId) {
-            event.preventDefault();
-            const editData = {
-                nome: document.getElementById(`edit-sala-nome-${salaId}`).value,
-                capacidade: parseInt(document.getElementById(`edit-sala-capacidade-${salaId}`).value),
-                status: document.getElementById(`edit-sala-status-${salaId}`).value
-            };
-
-            try {
-                const resp = await fetch(`${API_BASE}/sala/updatePartial/${salaId}`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(editData)
-                });
-                const json = await resp.json();
-                if (!resp.ok || !json.sucesso) throw new Error(json.erro);
-
-                carregarTodasSalas(); // Recarrega visual
-            } catch (error) {
-                alert("Erro ao atualizar: " + error.message);
-            }
-        }
-
-        async function desativarSala(salaId) {
-            if (!confirm('Tem certeza? A sala não poderá receber novas reservas.')) return;
-            alterarStatusSala(salaId, 'DESATIVADA');
-        }
-
-        async function reativarSala(salaId) {
-            alterarStatusSala(salaId, 'DISPONIVEL');
-        }
-
-        async function alterarStatusSala(salaId, novoStatus) {
-            try {
-                const resp = await fetch(`${API_BASE}/sala/updatePartial/${salaId}`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status: novoStatus })
-                });
-                const json = await resp.json();
-                if (!json.sucesso) throw new Error(json.erro);
-                
-                carregarTodasSalas();
-            } catch (e) { console.error(e); }
-        }
-
-        async function removerRecursoSala(salaId, recursoId) {
-            if(!confirm("Remover este recurso da sala?")) return;
-            try {
-                const resp = await fetch(`${API_BASE}/sala-recurso/remove`, {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ fk_sala: Number(salaId), fk_recurso: Number(recursoId) })
-                });
-                const json = await resp.json();
-                if (!json.sucesso) throw new Error(json.erro);
-                
-                // Recarrega só os recursos desta sala
-                carregarRecursosDaSala(salaId);
-            } catch(e) { alert("Erro ao remover: " + e.message); }
-        }
-
-        // --- 7. MENU MOBILE ---
-        const wrapper = document.getElementById("wrapper");
-        document.getElementById("menu-toggle").onclick = (e) => {
-            e.stopPropagation();
-            wrapper.classList.toggle("toggled");
-            document.getElementById("overlay").style.display = wrapper.classList.contains("toggled") ? "block" : "none";
-        };
-        function fecharMenu() {
-            wrapper.classList.remove("toggled");
-            document.getElementById("overlay").style.display = "none";
-        }
-        function logout() {
-            localStorage.clear();
-            window.location.href = 'index.html';
-        }
-    </script>
+    <script src="./js/adm-gerenciar-sala.js"></script>
 </body>
+
 </html>

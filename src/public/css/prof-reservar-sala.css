@@ -1,0 +1,296 @@
+body {
+    background-color: #f3f4f6;
+    overflow-x: hidden;
+}
+
+/* --- LAYOUT DO PORTAL (SIDEBAR) --- */
+#wrapper {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+}
+
+#sidebar-wrapper {
+    min-height: 100vh;
+    width: 250px;
+    margin-left: 0;
+    background-color: #212529;
+    color: #fff;
+    transition: margin .25s ease-out;
+    position: fixed;
+    z-index: 1000;
+}
+
+#sidebar-wrapper .sidebar-heading {
+    padding: 1.5rem 1.25rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    background-color: #1a1e21;
+    text-align: center;
+    border-bottom: 1px solid #444;
+}
+
+.list-group-item-action {
+    background-color: transparent;
+    color: #b3b3b3;
+    border: none;
+    padding: 15px 20px;
+    transition: all 0.2s;
+}
+
+.list-group-item-action:hover {
+    background-color: #343a40;
+    color: #fff;
+    padding-left: 25px;
+}
+
+.list-group-item-action.active {
+    background-color: #0d6efd;
+    color: #fff;
+    border-left: 4px solid #fff;
+}
+
+.list-group-item i {
+    margin-right: 10px;
+}
+
+#page-content-wrapper {
+    width: 100%;
+    margin-left: 250px;
+    transition: margin .25s ease-out;
+    padding-bottom: 100px;
+    /* Espaço para barra flutuante */
+}
+
+.navbar-top {
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    padding: 15px 30px;
+}
+
+@media (max-width: 768px) {
+    #sidebar-wrapper {
+        margin-left: -250px;
+    }
+
+    #page-content-wrapper {
+        margin-left: 0;
+    }
+
+    #wrapper.toggled #sidebar-wrapper {
+        margin-left: 0;
+    }
+}
+
+/* --- CSS ESPECÍFICO DA RESERVA --- */
+.bloco-sala {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.titulo-sala {
+    font-size: 1.2rem;
+    color: #2c3e50;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 5px;
+}
+
+.grupo-turnos {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.sala-card {
+    background-color: #fff;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    padding: 10px 15px;
+    cursor: pointer;
+    width: 240px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+}
+
+.sala-card:hover {
+    border-color: #aaa;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.sala-card.selecionada {
+    border-color: #0d6efd;
+    background-color: #e7f1ff;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.2);
+}
+
+.sala-card.ocupada {
+    background-color: #f8f9fa;
+    border-color: #e9ecef;
+    cursor: not-allowed;
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.sala-card.ocupada .nome-turno,
+.sala-card.ocupada .cap-sala {
+    color: #adb5bd;
+    text-decoration: line-through;
+}
+
+.sala-card.ocupada svg {
+    stroke: #adb5bd !important;
+}
+
+.info-sala {
+    display: flex;
+    flex-direction: column;
+}
+
+.nome-turno {
+    font-weight: bold;
+    color: #333;
+    font-size: 0.95rem;
+}
+
+.cap-sala {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+/* Barra Flutuante Ajustada para o Portal */
+.barra-bottom {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    background: white;
+    border-top: 1px solid #ccc;
+    padding: 15px;
+    text-align: right;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 990;
+    /* Abaixo do menu lateral */
+    width: 100%;
+    /* Mobile default */
+    left: 0;
+}
+
+/* No Desktop, a barra deve começar DEPOIS do menu lateral */
+@media (min-width: 768px) {
+    .barra-bottom {
+        left: 250px;
+        /* Largura da sidebar */
+        width: calc(100% - 250px);
+    }
+}
+
+/* Flatpickr Custom */
+.flatpickr-day {
+    color: #333 !important;
+    font-weight: 500;
+}
+
+.flatpickr-day:not(.flatpickr-disabled) {
+    color: #000 !important;
+    font-weight: bold;
+}
+
+.flatpickr-day.flatpickr-disabled {
+    color: #ccc !important;
+}
+
+.flatpickr-day.selected {
+    background: #0d6efd !important;
+    border-color: #0d6efd !important;
+    color: #fff !important;
+}
+
+/* Animação Check */
+.check-animado {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: block;
+    stroke-width: 2;
+    stroke: #fff;
+    stroke-miterlimit: 10;
+    margin: 10px auto;
+    box-shadow: inset 0px 0px 0px #198754;
+    animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+}
+
+.check-animado__circle {
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    stroke-width: 2;
+    stroke-miterlimit: 10;
+    stroke: #198754;
+    fill: none;
+    animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.check-animado__check {
+    transform-origin: 50% 50%;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+}
+
+@keyframes stroke {
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes scale {
+
+    0%,
+    100% {
+        transform: none;
+    }
+
+    50% {
+        transform: scale3d(1.1, 1.1, 1);
+    }
+}
+
+@keyframes fill {
+    100% {
+        box-shadow: inset 0px 0px 0px 50px #198754;
+    }
+}
+
+/* --- OVERLAY PARA MOBILE --- */
+#overlay {
+    display: none;
+    /* Escondido por padrão */
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Fundo preto transparente */
+    z-index: 990;
+    /* Fica atrás do menu (1000) mas na frente do conteúdo */
+    cursor: pointer;
+}
+
+/* Quando o wrapper tiver a classe toggled (menu aberto), mostra o overlay */
+#wrapper.toggled #overlay {
+    display: block;
+}
+
+/* Ajuste Z-Index para o Menu ficar acima do Overlay */
+#sidebar-wrapper {
+    z-index: 1000;
+}
